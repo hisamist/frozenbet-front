@@ -1,6 +1,4 @@
-// app/result/[id]/page.tsx
 "use client";
-
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
@@ -47,10 +45,10 @@ export default function ResultPage() {
   const [match, setMatch] = useState<Match | null>(null);
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [rankings, setRankings] = useState<UserRanking[]>([]);
+  const [currentUserId, setCurrentUserId] = useState("u1"); // mock user id
 
   useEffect(() => {
-    // Ici tu ferais un fetch API pour récupérer les données par resultId
-    // Exemple mock :
+    // Mock fetch
     setMatch({
       id: resultId!,
       homeTeam: "Team A",
@@ -85,15 +83,34 @@ export default function ResultPage() {
 
   if (!match) return <Typography>Loading...</Typography>;
 
+  const userPrediction = predictions.find((p) => p.user.id === currentUserId);
+
   return (
-    <Box sx={{ p: 4 }}>
+    <Box
+      sx={{ px: { xs: 3, sm: 6, md: 12 }, py: 6, display: "flex", flexDirection: "column", gap: 6 }}
+    >
+      {/* Match Info */}
       <Typography variant="h4" mb={2}>
         Résultat du match : {match.homeTeam} vs {match.awayTeam}
       </Typography>
-      <Typography variant="h6" mb={4}>
+      <Typography variant="h6">
         Score : {match.homeScore} - {match.awayScore} ({new Date(match.date).toLocaleString()})
       </Typography>
 
+      {/* User Bet */}
+      {userPrediction && (
+        <Box sx={{ p: 2, bgcolor: "#f5f5f5", borderRadius: 2 }}>
+          <Typography variant="h6" mb={1}>
+            Votre pari
+          </Typography>
+          <Typography>
+            Prediction : {userPrediction.homeScorePrediction} - {userPrediction.awayScorePrediction}
+          </Typography>
+          <Typography>Points gagnés : {userPrediction.pointsEarned}</Typography>
+        </Box>
+      )}
+
+      {/* Predictions Table */}
       <Typography variant="h5" mb={2}>
         Prédictions des utilisateurs
       </Typography>
@@ -118,6 +135,7 @@ export default function ResultPage() {
         </TableBody>
       </Table>
 
+      {/* User Rankings */}
       <Typography variant="h5" mt={4} mb={2}>
         Classement des utilisateurs
       </Typography>
@@ -130,8 +148,8 @@ export default function ResultPage() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rankings.map((r, idx) => (
-            <TableRow key={idx}>
+          {rankings.map((r) => (
+            <TableRow key={r.user.id}>
               <TableCell>{r.rank}</TableCell>
               <TableCell>{r.user.username}</TableCell>
               <TableCell>{r.totalPoints}</TableCell>

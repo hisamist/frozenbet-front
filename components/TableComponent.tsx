@@ -1,3 +1,4 @@
+// TableComponent.tsx
 "use client";
 
 import React from "react";
@@ -14,8 +15,21 @@ import {
   Typography,
 } from "@mui/material";
 
-// Données mock
-const mockBets = [
+interface Bet {
+  id: number;
+  match: string;
+  scheduledDate: string;
+  admin: string;
+  adminAvatar: string;
+  homeScore: number;
+  awayScore: number;
+}
+
+interface TableComponentProps {
+  isParticipating: boolean; // <-- control active/inactive
+}
+
+const mockBets: Bet[] = [
   {
     id: 1,
     match: "Team A vs Team B",
@@ -36,8 +50,9 @@ const mockBets = [
   },
 ];
 
-export default function TableComponent() {
+export default function TableComponent({ isParticipating }: TableComponentProps) {
   const handleParticipate = (betId: number) => {
+    if (!isParticipating) return; // safety check
     alert(`Vous participez au bet ${betId}`);
   };
 
@@ -76,8 +91,9 @@ export default function TableComponent() {
                   color="success"
                   size="small"
                   onClick={() => handleParticipate(bet.id)}
+                  disabled={!isParticipating} // <-- disabled if not participating
                 >
-                  Participer
+                  Parier
                 </Button>
               </TableCell>
             </TableRow>

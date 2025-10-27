@@ -1,12 +1,15 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useState } from "react";
 import Image from "next/image";
 import TableComponent from "@/components/TableComponent";
+import PariTable from "@/components/PariTable";
 
-// Mock data simplifié pour HockerBet
-const mockGroups = [
-  {
+export default function GroupPage() {
+  const [isParticipating, setIsParticipating] = useState(false);
+
+  // Mock group data (simplified)
+  const group = {
     id: "1",
     name: "HockerBet Champions",
     description: "Pariez et défiez vos amis sur vos équipes favorites !",
@@ -26,44 +29,71 @@ const mockGroups = [
       { userId: 1, username: "Alice", totalPoints: 12, rank: 1 },
       { userId: 2, username: "Bob", totalPoints: 8, rank: 2 },
     ],
-  },
-];
+  }; // Mock your bets
+  const mockYourBets: {
+    id: number;
+    match: string;
+    scheduledDate: string;
+    predictedScore: string;
+    status: "finished" | "active";
+    resultId: string;
+  }[] = [
+    {
+      id: 1,
+      match: "Team A vs Team B",
+      scheduledDate: "2025-11-01 20:00",
+      predictedScore: "2-1",
+      status: "finished",
+      resultId: "101",
+    },
+    {
+      id: 2,
+      match: "Team C vs Team D",
+      scheduledDate: "2025-11-02 18:30",
+      predictedScore: "1-1",
+      status: "active",
+      resultId: "",
+    },
+  ];
 
-const randomImages = [
-  "/images/group1.jpg",
-  "/images/group2.jpg",
-  "/images/group3.jpg",
-  "/images/group4.jpg",
-];
-
-export default function GroupPage() {
-  const params = useParams();
-  const groupId = params.id;
-
-  // Récupérer le groupe ou fallback mock
-  const group = mockGroups.find((g) => g.id === groupId) || {
-    id: groupId,
-    name: `Groupe ${groupId}`,
-    description: "Description non disponible",
-    avatarUrl: randomImages[Math.floor(Math.random() * randomImages.length)],
-    ownerName: "Inconnu",
-    competition: { name: "Competition inconnue", logoUrl: randomImages[0] },
-    members: [],
-    scoringRules: [],
-    rankings: [],
+  const handleParticipateClick = () => {
+    setIsParticipating(true);
   };
 
   return (
     <div className="max-w-5xl mx-auto p-6 flex flex-col gap-8">
       {/* Image + Nom du Groupe */}
-      <div className="flex flex-col md:flex-row items-center gap-6 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <div className="relative w-40 h-40">
-          <Image src={group.avatarUrl} alt={group.name} fill className="object-cover rounded-lg" />
+      <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div className="flex items-center gap-6">
+          <div className="relative w-40 h-40">
+            <Image
+              src={group.avatarUrl}
+              alt={group.name}
+              fill
+              className="object-cover rounded-lg"
+            />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{group.name}</h1>
+            <p className="text-gray-700 dark:text-gray-300 mt-2">{group.description}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Owner: {group.ownerName}
+            </p>
+          </div>
         </div>
+
+        {/* Bouton Participer / Parier */}
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{group.name}</h1>
-          <p className="text-gray-700 dark:text-gray-300 mt-2">{group.description}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Owner: {group.ownerName}</p>
+          <button
+            className={`px-4 py-2 rounded ${
+              isParticipating
+                ? "bg-red-600 text-white hover:bg-red-700"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
+            onClick={() => setIsParticipating(!isParticipating)}
+          >
+            {isParticipating ? "Sortir du groupe" : "Participer"}
+          </button>
         </div>
       </div>
 
@@ -122,7 +152,9 @@ export default function GroupPage() {
           ))}
         </ul>
       </div>
-      <TableComponent />
+
+      <TableComponent isParticipating={isParticipating} />
+      <PariTable bets={mockYourBets} isParticipating={isParticipating} />
       {/* Classement */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
         <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Classement</h2>
