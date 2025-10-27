@@ -7,7 +7,11 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Link from "next/link";
 
-export default function Navbar() {
+interface NavbarProps {
+  onLoginClick: () => void; // callback pour ouvrir le modal
+}
+
+export default function Navbar({ onLoginClick }: NavbarProps) {
   return (
     <AppBar position="static" color="primary">
       <Toolbar>
@@ -23,9 +27,10 @@ export default function Navbar() {
           <Link href="/" passHref>
             <Button color="inherit">Accueil</Button>
           </Link>
-          <Link href="/login" passHref>
-            <Button color="inherit">Login</Button>
-          </Link>
+          {/* Bouton Login déclenche modal */}
+          <Button color="inherit" onClick={onLoginClick}>
+            Login
+          </Button>
         </Box>
 
         {/* Notifications */}
