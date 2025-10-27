@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import TableComponent from "@/components/TableComponent";
-import PariTable from "@/components/PariTable";
+import BetListTable from "@/components/BetTable";
+import PariTable from "@/components/YourBetTable";
 
 export default function GroupPage() {
   const [isParticipating, setIsParticipating] = useState(false);
@@ -153,7 +153,7 @@ export default function GroupPage() {
         </ul>
       </div>
 
-      <TableComponent isParticipating={isParticipating} />
+      <BetListTable isParticipating={isParticipating} />
       <PariTable bets={mockYourBets} isParticipating={isParticipating} />
       {/* Classement */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">

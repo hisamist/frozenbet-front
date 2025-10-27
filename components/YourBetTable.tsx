@@ -17,7 +17,7 @@ interface PariTableProps {
   isParticipating: boolean;
 }
 
-export default function PariTable({ bets, isParticipating }: PariTableProps) {
+export default function YourBetTable({ bets, isParticipating }: PariTableProps) {
   if (!isParticipating) {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
