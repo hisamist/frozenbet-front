@@ -5,7 +5,7 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 
 export default function Footer() {
   return (
-    <Box component="footer" sx={{ bgcolor: 'grey.900', color: 'grey.100', py: 6 }}>
+    <Box component="footer" sx={{ bgcolor: "grey.900", color: "grey.100", py: 6 }}>
       <Container maxWidth="lg">
         <Stack spacing={2} alignItems="center">
           <Typography variant="h6" component="div">

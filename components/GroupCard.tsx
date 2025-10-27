@@ -1,16 +1,6 @@
+import { Group } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
-
-interface Group {
-  id: number;
-  name: string;
-  description: string;
-  ownerName: string;
-  avatarUrl?: string;
-  membersCount: number;
-  maxMembers: number;
-  visibility: "private" | "public";
-}
 
 interface GroupCardProps {
   group: Group;
@@ -24,7 +14,7 @@ const randomImages = [
 ];
 
 export default function GroupCard({ group }: GroupCardProps) {
-  const imageUrl = group.avatarUrl || randomImages[Math.floor(Math.random() * randomImages.length)];
+  const imageUrl = randomImages[Math.floor(Math.random() * randomImages.length)];
 
   return (
     <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden w-full max-w-sm">
@@ -35,15 +25,13 @@ export default function GroupCard({ group }: GroupCardProps) {
 
       {/* Contenu */}
       <div className="p-4">
-        <h2 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">
-          {group.name}
-        </h2>
+        <h2 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">{group.name}</h2>
         <p className="text-gray-700 dark:text-gray-300 mb-2">{group.description}</p>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-          Owner: {group.ownerName}
+          Max member: {group.max_members}
         </p>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-          Members: {group.membersCount}/{group.maxMembers} | {group.visibility}
+          Visibility: {group.visibility}
         </p>
 
         {/* Bouton redirige vers /group/id */}

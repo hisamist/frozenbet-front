@@ -1,8 +1,8 @@
 "use client";
 
 import ModalComponent from "@/components/ModalComponent";
-import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
 import { useState } from "react";
 
 export default function CreateGroupModal() {
@@ -22,7 +22,7 @@ export default function CreateGroupModal() {
         value={groupName}
         onChange={(e) => setGroupName(e.target.value)}
       />
-       <TextField
+      <TextField
         fullWidth
         label="Type du jeux"
         variant="outlined"
@@ -30,7 +30,7 @@ export default function CreateGroupModal() {
         value={groupName}
         onChange={(e) => setGroupName(e.target.value)}
       />
-       <TextField
+      <TextField
         fullWidth
         label="Nom du groupe"
         variant="outlined"
@@ -38,12 +38,7 @@ export default function CreateGroupModal() {
         value={groupName}
         onChange={(e) => setGroupName(e.target.value)}
       />
-      <Button
-        variant="contained"
-        color="primary"
-        fullWidth
-        onClick={handleCreate}
-      >
+      <Button variant="contained" color="primary" fullWidth onClick={handleCreate}>
         Confirmer
       </Button>
     </ModalComponent>

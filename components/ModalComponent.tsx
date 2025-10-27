@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
@@ -11,7 +11,11 @@ interface ModalComponentProps {
   buttonText?: string;
 }
 
-export default function ModalComponent({ title, children, buttonText = "Open Modal" }: ModalComponentProps) {
+export default function ModalComponent({
+  title,
+  children,
+  buttonText = "Open Modal",
+}: ModalComponentProps) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
