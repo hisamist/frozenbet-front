@@ -161,3 +161,8 @@ export interface GroupWithRelations extends Group {
   rankings?: GroupRanking[];
   predictions?: Prediction[];
 }
+
+export interface Notification {
+  resultId: number;
+  message: string;
+}

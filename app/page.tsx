@@ -1,17 +1,21 @@
 import CreateGroupModal from "@/components/CreateGroupModal";
 import GroupCard from "@/components/GroupCard";
+import { Group } from "@/types";
 
 export default function Home() {
   // Mock data : 16 groupes pour 4x4
-  const groups = Array.from({ length: 16 }).map((_, i) => ({
+  const groups: Group[] = Array.from({ length: 16 }).map((_, i) => ({
     id: i + 1,
     name: `Groupe ${i + 1}`,
     description: "Description du groupe",
     ownerName: `Owner ${i + 1}`,
+    owner_id: i + 100, // mock owner id
     avatarUrl: "/images/group-placeholder.jpg", // image placeholder
     membersCount: Math.floor(Math.random() * 10) + 1,
     maxMembers: 10,
     visibility: i % 2 === 0 ? "public" : "private",
+    invite_code: `INVITE${String(i + 1).padStart(4, "0")}`,
+    created_at: new Date(Date.now() - i * 86400000).toISOString(), // mock created date
   }));
 
   return (
@@ -23,7 +27,7 @@ export default function Home() {
           <p className="text-lg text-gray-700 dark:text-gray-300 mb-6">
             Contenu principal de la page d’accueil.
           </p>
-          <CreateGroupModal />
+          <CreateGroupModal isLoggedIn={false} />
         </div>
       </div>
 

@@ -3,9 +3,6 @@ import { useState } from "react";
 import ModalComponent from "@/components/ModalComponent";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import Box from "@mui/material/Box";
 import { AuthModal } from "./AuthModal";
 
 // ==================== CreateGroupModal.tsx ====================

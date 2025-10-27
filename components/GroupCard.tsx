@@ -17,7 +17,7 @@ export default function GroupCard({ group }: GroupCardProps) {
   const imageUrl = randomImages[Math.floor(Math.random() * randomImages.length)];
 
   return (
-    <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden w-full max-w-sm">
+    <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden w-full max-w-lg">
       {/* Image */}
       <div className="relative h-40 w-full">
         <Image src={imageUrl} alt={group.name} fill className="object-cover" />
