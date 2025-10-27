@@ -25,11 +25,8 @@ export default function Navbar() {
           <Link href="/" passHref>
             <Button color="inherit">Accueil</Button>
           </Link>
-          <Link href="/group" passHref>
-            <Button color="inherit">Group</Button>
-          </Link>
-          <Link href="/result" passHref>
-            <Button color="inherit">Result</Button>
+          <Link href="/login" passHref>
+            <Button color="inherit">Login</Button>
           </Link>
         </Box>
 

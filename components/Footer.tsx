@@ -9,7 +9,7 @@ export default function Footer() {
       <Container maxWidth="lg">
         <Stack spacing={2} alignItems="center">
           <Typography variant="h6" component="div">
-            MyApp
+            FrozenBet
           </Typography>
           <Stack direction="row" spacing={2}>
             <Link href="/" color="inherit" underline="hover">
@@ -22,19 +22,8 @@ export default function Footer() {
               Contact
             </Link>
           </Stack>
-          <Stack direction="row" spacing={1}>
-            <IconButton href="https://facebook.com" color="inherit">
-              <FacebookIcon />
-            </IconButton>
-            <IconButton href="https://twitter.com" color="inherit">
-              <TwitterIcon />
-            </IconButton>
-            <IconButton href="https://instagram.com" color="inherit">
-              <InstagramIcon />
-            </IconButton>
-          </Stack>
           <Typography variant="body2" color="grey.500">
-            © {new Date().getFullYear()} MyApp. All rights reserved.
+            © {new Date().getFullYear()} FrozenBet. All rights reserved.
           </Typography>
         </Stack>
       </Container>

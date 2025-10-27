@@ -13,7 +13,7 @@ export default function CreateGroupModal() {
   };
 
   return (
-    <ModalComponent title="Créer un groupe" buttonText="Ajouter Repository">
+    <ModalComponent title="Créer un groupe" buttonText="Ajouter Groupe">
       <TextField
         fullWidth
         label="Nom du groupe"
