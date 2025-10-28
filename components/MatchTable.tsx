@@ -14,6 +14,9 @@ import {
   TableHead,
   TableRow,
   Typography,
+  Tooltip,
+  Box,
+  TableSortLabel,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -23,6 +26,8 @@ interface MatchesTableProps {
   groupId: number;
 }
 
+type Order = "asc" | "desc";
+
 export default function MatchesTable({
   competitionId,
   isParticipating,
@@ -30,6 +35,8 @@ export default function MatchesTable({
 }: MatchesTableProps) {
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
+  const [order, setOrder] = useState<Order>("desc"); // default newest first
+  const [orderBy, setOrderBy] = useState<"date" | "button">("date");
   const [open, setOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
 
@@ -41,7 +48,7 @@ export default function MatchesTable({
       try {
         const res = await getMatchesByCompetitionId(Number(competitionId));
         setMatches(res || []);
-      } catch (err: any) {
+      } catch (err) {
         console.error("❌ Erreur lors de la récupération des matches :", err);
       } finally {
         setLoading(false);
@@ -50,11 +57,48 @@ export default function MatchesTable({
     fetchMatches();
   }, [competitionId]);
 
-  if (loading) return <p>Chargement des matches...</p>;
-  if (!matches.length) return <p>Aucun match trouvé pour cette compétition.</p>;
+  if (loading)
+    return (
+      <Box display="flex" justifyContent="center" py={4}>
+        <Typography>Chargement des matches...</Typography>
+      </Box>
+    );
+  if (!matches.length)
+    return (
+      <Typography align="center" py={4}>
+        Aucun match trouvé pour cette compétition.
+      </Typography>
+    );
+
+  const handleSort = (column: "date" | "button") => {
+    const isAsc = orderBy === column && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(column);
+  };
+
+  const sortedMatches = [...matches].sort((a, b) => {
+    const now = new Date();
+    const aCan = isParticipating && a.status === "scheduled" && new Date(a.scheduledDate) > now;
+    const bCan = isParticipating && b.status === "scheduled" && new Date(b.scheduledDate) > now;
+
+    if (orderBy === "button") {
+      return order === "asc" ? Number(aCan) - Number(bCan) : Number(bCan) - Number(aCan);
+    }
+
+    // Default: sort first by button availability, then by date
+    if (aCan !== bCan) {
+      return bCan ? 1 : -1; // place bettable matches on top
+    }
+
+    const aDate = new Date(a.scheduledDate).getTime();
+    const bDate = new Date(b.scheduledDate).getTime();
+    return order === "asc" ? aDate - bDate : bDate - aDate; // newest first
+  });
 
   const handleParier = (match: Match) => {
-    if (!isParticipating || match.status !== "scheduled") return;
+    if (!isParticipating) return;
+    const matchDate = new Date(match.scheduledDate);
+    if (match.status !== "scheduled" || matchDate <= new Date()) return;
     setSelectedMatch(match);
     setOpen(true);
   };
@@ -70,15 +114,12 @@ export default function MatchesTable({
       homeScorePrediction,
       awayScorePrediction,
     };
-
     try {
-      const res = await makePrediction(payload);
-      console.log("🎯 Prédiction créée :", res);
+      await makePrediction(payload);
       alert(
         `Pari enregistré pour le match ${selectedMatch.homeTeam?.name} vs ${selectedMatch.awayTeam?.name}`
       );
     } catch (err: any) {
-      console.error("❌ Erreur lors de la création de la prédiction :", err);
       alert("Erreur lors de la création de la prédiction : " + err.message);
     } finally {
       setOpen(false);
@@ -88,28 +129,47 @@ export default function MatchesTable({
 
   return (
     <>
-      <TableContainer component={Paper} sx={{ mt: 3 }}>
-        <Typography variant="h6" component="div" sx={{ p: 2 }}>
+      <TableContainer component={Paper} sx={{ mt: 3, maxHeight: 500 }}>
+        <Typography variant="h6" sx={{ p: 2 }}>
           Matches disponibles
         </Typography>
-        <Table>
+        <Table stickyHeader>
           <TableHead>
             <TableRow>
-              <TableCell>Date</TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === "date"}
+                  direction={orderBy === "date" ? order : "desc"}
+                  onClick={() => handleSort("date")}
+                >
+                  Date
+                </TableSortLabel>
+              </TableCell>
               <TableCell>Équipe domicile</TableCell>
               <TableCell>Score</TableCell>
               <TableCell>Équipe extérieure</TableCell>
               <TableCell>Status</TableCell>
               <TableCell>Lieu</TableCell>
-              <TableCell align="center">Action</TableCell>
+              <TableCell align="center">
+                <TableSortLabel
+                  active={orderBy === "button"}
+                  direction={orderBy === "button" ? order : "desc"}
+                  onClick={() => handleSort("button")}
+                >
+                  Action
+                </TableSortLabel>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {matches.map((match) => {
-              const canParier = isParticipating && match.status === "scheduled";
+            {sortedMatches.map((match) => {
+              const matchDate = new Date(match.scheduledDate);
+              const now = new Date();
+              const canParier = isParticipating && match.status === "scheduled" && matchDate > now;
+
               return (
-                <TableRow key={match.id}>
-                  <TableCell>{new Date(match.scheduledDate).toLocaleString()}</TableCell>
+                <TableRow key={match.id} sx={{ opacity: canParier ? 1 : 0.5 }}>
+                  <TableCell>{matchDate.toLocaleString()}</TableCell>
                   <TableCell>{match.homeTeam?.name || match.homeTeamId}</TableCell>
                   <TableCell>
                     {match.homeScore != null && match.awayScore != null
@@ -120,15 +180,29 @@ export default function MatchesTable({
                   <TableCell>{match.status}</TableCell>
                   <TableCell>{match.location || "-"}</TableCell>
                   <TableCell align="center">
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      size="small"
-                      disabled={!canParier}
-                      onClick={() => handleParier(match)}
+                    <Tooltip
+                      title={
+                        !isParticipating
+                          ? "Vous ne participez pas à ce groupe"
+                          : match.status !== "scheduled"
+                            ? "Le pari est fermé pour ce match"
+                            : matchDate <= now
+                              ? "Le match a déjà commencé ou est terminé"
+                              : ""
+                      }
                     >
-                      Parier
-                    </Button>
+                      <span>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          size="small"
+                          disabled={!canParier}
+                          onClick={() => handleParier(match)}
+                        >
+                          Parier
+                        </Button>
+                      </span>
+                    </Tooltip>
                   </TableCell>
                 </TableRow>
               );
@@ -145,7 +219,6 @@ export default function MatchesTable({
           groupId={groupId}
           userId={userId}
           onSubmit={(prediction: any) => {
-            // call async handler without returning the Promise to match the expected void signature
             handlePredictionSubmit(prediction.homeScorePrediction, prediction.awayScorePrediction);
           }}
         />

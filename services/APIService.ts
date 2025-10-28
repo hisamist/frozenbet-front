@@ -211,14 +211,10 @@ export const getBetsByGroupId = async (groupId?: number) => {
   }
 };
 
-export const getYourBets = async (userId: number, groupId?: number) => {
+export const getYourBets = async (userId: number) => {
   try {
-    const res = await api.get("/predictions", {
-      params: {
-        userId,
-        ...(groupId ? { groupId } : {}),
-      },
-      headers: authHeaders(), // <-- include token
+    const res = await api.get(`/users/${userId}/predictions`, {
+      headers: authHeaders(), // send token
     });
     return normalizeList(res.data);
   } catch (err) {

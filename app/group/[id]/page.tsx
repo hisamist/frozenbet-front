@@ -6,7 +6,7 @@ import MatchesTable from "@/components/MatchTable";
 import RankingTable from "@/components/RankingTable";
 import YourBetTable from "@/components/YourBetTable";
 import { useAuth } from "@/context/AuthContext";
-import { getBetsByGroupId, getGroupById } from "@/services/APIService";
+import { getGroupById, getBetsByGroupId, getYourBets } from "@/services/APIService";
 import { GroupFull, Prediction } from "@/types";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import PersonIcon from "@mui/icons-material/Person";
@@ -14,14 +14,15 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import SportsHockeyIcon from "@mui/icons-material/SportsHockey";
 import Button from "@mui/material/Button";
 import { useParams } from "next/navigation";
+import { userAgent } from "next/server";
 import { useEffect, useState } from "react";
 
 export default function GroupPage() {
   const params = useParams();
+  const { user } = useAuth();
   const groupId = params.id as string;
   const [isParticipating, setIsParticipating] = useState(false);
   const iconColor = getIconColorById(Number(groupId));
-  const { user } = useAuth();
   // Mock group data
   const [group, setGroup] = useState<GroupFull | null>(null);
   const [bets, setBets] = useState<Prediction[]>([]);
@@ -33,14 +34,19 @@ export default function GroupPage() {
     const loadData = async () => {
       const apiGroup = await getGroupById(Number(groupId));
       setGroup(apiGroup as GroupFull);
+
       const apiBets = await getBetsByGroupId(Number(groupId));
       setBets(apiBets);
-      // Exemple: filtrer pour l'utilisateur courant (mock id 1 si pas d'auth)
-      const filtered = apiBets.filter((bet: Prediction) => bet.userId === 1);
-      setYourBets(filtered);
+
+      // Only fetch user bets if user is loaded
+      if (user?.id) {
+        const yourBet = await getYourBets(user.id);
+        setYourBets(yourBet);
+      }
     };
+
     loadData();
-  }, [groupId]);
+  }, [groupId, user?.id]);
 
   return (
     <div className="max-w-5xl mx-auto p-6 flex flex-col gap-8">
