@@ -10,6 +10,7 @@ import { MockAPIService } from "@/services/MockAPIService";
 import { useParams } from "next/navigation";
 import { getIconColorById } from "@/colors";
 import SportsHockeyIcon from "@mui/icons-material/SportsHockey";
+import MatchesTable from "@/components/MatchTable";
 
 export default function GroupPage() {
   const params = useParams();
@@ -112,7 +113,7 @@ export default function GroupPage() {
       </div>
 
       {/* Tables */}
-      <BetListTable isParticipating={isParticipating} predictions={bets} />
+      <MatchesTable competitionId={1} isParticipating={isParticipating} groupId={Number(groupId)} />
       <YourBetTable bets={bets} isParticipating={isParticipating} />
 
       {/* Rankings */}

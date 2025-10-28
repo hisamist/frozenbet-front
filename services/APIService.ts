@@ -157,3 +157,15 @@ export const getCompetitions = async () => {
     throw new Error(handleError(err));
   }
 };
+
+// --------------------
+// Matches endpoints
+// --------------------
+export const getMatchesByCompetitionId = async (competitionId: number) => {
+  try {
+    const res = await api.get("/competitions/" + competitionId + "/matches");
+    return res.data;
+  } catch (err) {
+    throw new Error(handleError(err));
+  }
+};
