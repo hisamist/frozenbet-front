@@ -2,6 +2,7 @@
 
 import { NotificationsModal } from "@/components/NotificationsModal";
 import { useAuth } from "@/context/AuthContext";
+import { useLiveScores } from "@/context/LiveScoresContext";
 import { getUnreadNotificationsCount } from "@/services/APIService";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import NotificationsIcon from "@mui/icons-material/Notifications";
@@ -13,7 +14,7 @@ import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface NavbarProps {
   onLoginClick: () => void;
@@ -21,8 +22,9 @@ interface NavbarProps {
 
 export default function Navbar({ onLoginClick }: NavbarProps) {
   const { user, logout, isAuthenticated } = useAuth();
+  const { getUnreadCount: getLiveScoresUnreadCount } = useLiveScores();
   const [notificationsModalOpen, setNotificationsModalOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [invitationUnreadCount, setInvitationUnreadCount] = useState(0);
 
   // Fonction pour récupérer le username depuis localStorage
   const getUsername = (): string => {
@@ -48,13 +50,13 @@ export default function Navbar({ onLoginClick }: NavbarProps) {
 
     const loadUnreadCount = async () => {
       if (!isAuthenticated) {
-        setUnreadCount(0);
+        setInvitationUnreadCount(0);
         return;
       }
       try {
         const count = await getUnreadNotificationsCount();
         if (isMounted) {
-          setUnreadCount(count);
+          setInvitationUnreadCount(count);
         }
       } catch (err) {
         console.error("Error loading unread notifications count:", err);
@@ -72,11 +74,16 @@ export default function Navbar({ onLoginClick }: NavbarProps) {
     if (!isAuthenticated) return;
     try {
       const count = await getUnreadNotificationsCount();
-      setUnreadCount(count);
+      setInvitationUnreadCount(count);
     } catch (err) {
       console.error("Error loading unread notifications count:", err);
     }
   }, [isAuthenticated]);
+
+  // Combine invitation and match notifications counts
+  const totalUnreadCount = useMemo(() => {
+    return invitationUnreadCount + getLiveScoresUnreadCount();
+  }, [invitationUnreadCount, getLiveScoresUnreadCount]);
 
   const handleAuthClick = () => {
     if (user) {
@@ -121,7 +128,7 @@ export default function Navbar({ onLoginClick }: NavbarProps) {
           {isAuthenticated ? (
             <>
               <IconButton color="inherit" onClick={handleNotificationsClick}>
-                <Badge badgeContent={unreadCount} color="error">
+                <Badge badgeContent={totalUnreadCount} color="error">
                   <NotificationsIcon />
                 </Badge>
               </IconButton>

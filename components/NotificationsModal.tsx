@@ -1,6 +1,7 @@
 "use client";
 
 import ModalComponent from "@/components/ModalComponent";
+import { useLiveScores } from "@/context/LiveScoresContext";
 import { acceptInvitation, getAllNotifications, rejectInvitation } from "@/services/APIService";
 import { Notification } from "@/types";
 import CheckIcon from "@mui/icons-material/Check";
@@ -17,7 +18,8 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 
 interface NotificationsModalProps {
   open: boolean;
@@ -30,14 +32,16 @@ export function NotificationsModal({
   onClose,
   onNotificationUpdate,
 }: NotificationsModalProps) {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const router = useRouter();
+  const { matchNotifications, markAllAsRead } = useLiveScores();
+  const [invitationNotifications, setInvitationNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
 
   const loadNotifications = async () => {
     setLoading(true);
     try {
       const allNotifications = await getAllNotifications();
-      setNotifications(allNotifications);
+      setInvitationNotifications(allNotifications);
     } catch (err: any) {
       console.error("Error loading notifications:", err);
     } finally {
@@ -51,13 +55,26 @@ export function NotificationsModal({
     }
   }, [open]);
 
-  const handleAccept = async (token: string) => {
+  // Combine invitation notifications and match notifications
+  const allNotifications = useMemo(() => {
+    const combined = [...invitationNotifications, ...matchNotifications];
+    // Sort by date, most recent first
+    return combined.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }, [invitationNotifications, matchNotifications]);
+
+  const handleAccept = async (token: string, groupId?: number) => {
     try {
       await acceptInvitation(token);
       alert("Invitation acceptée ✅");
       await loadNotifications();
       if (onNotificationUpdate) {
         onNotificationUpdate();
+      }
+      onClose();
+      if (groupId) {
+        router.push(`/group/${groupId}`);
       }
     } catch (err: any) {
       alert(err.message || "Erreur lors de l'acceptation de l'invitation");
@@ -117,7 +134,7 @@ export function NotificationsModal({
             color="success"
             onClick={(e) => {
               e.stopPropagation();
-              handleAccept(notification.invitationToken!);
+              handleAccept(notification.invitationToken!, notification.groupId);
             }}
             title="Accepter"
           >
@@ -218,13 +235,15 @@ export function NotificationsModal({
           <Typography sx={{ textAlign: "center", py: 3, color: "text.primary" }}>
             Chargement...
           </Typography>
-        ) : notifications.length === 0 ? (
+        ) : allNotifications.length === 0 ? (
           <Typography sx={{ textAlign: "center", py: 3, color: "text.secondary" }}>
             Aucune notification
           </Typography>
         ) : (
           <List sx={{ maxHeight: 500, overflow: "auto" }}>
-            {notifications.map((notification) => renderNotificationItem(notification))}
+            {allNotifications.map((notification: Notification) =>
+              renderNotificationItem(notification)
+            )}
           </List>
         )}
 
