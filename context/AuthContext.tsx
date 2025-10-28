@@ -46,10 +46,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // 🚪 Logout
   const logout = async () => {
-    await AuthService.logoutUser?.(); // optionnel si backend a un endpoint logout
-    setUser(null);
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+    try {
+      await AuthService.logoutUser(); // maintenant avec token
+    } catch (err) {
+      console.warn("Logout failed:", err);
+    } finally {
+      setUser(null);
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+    }
   };
 
   // 🆕 Register

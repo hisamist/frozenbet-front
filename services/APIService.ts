@@ -36,7 +36,6 @@ export const registerUser = async (payload: {
 }) => {
   try {
     const res = await api.post("/auth/register", payload);
-    console.log(res);
     return res.data;
   } catch (err) {
     throw new Error(handleError(err));
@@ -54,9 +53,20 @@ export const loginUser = async (payload: { email: string; password: string }) =>
 
 export const logoutUser = async () => {
   try {
-    await api.post("/auth/logout");
-  } catch (err) {
-    throw new Error(handleError(err));
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("No token found for logout");
+
+    await api.post(
+      "/auth/logout",
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+  } catch (err: any) {
+    throw new Error(err.response?.data?.message || err.message);
   }
 };
 
