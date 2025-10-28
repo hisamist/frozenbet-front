@@ -21,6 +21,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en">
+      <head>
+        <title>FrozenBet - Pronostics sportifs entre amis</title>
+        <link rel="icon" href="/logo-frozenbet.ico" sizes="any" />
+      </head>
       <body className="flex flex-col min-h-screen">
         <AuthProvider>
           {/* Navbar avec callback pour ouvrir modal */}
