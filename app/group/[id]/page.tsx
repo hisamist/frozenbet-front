@@ -1,15 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import PersonIcon from "@mui/icons-material/Person";
-import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
-import BetListTable from "@/components/BetTable";
+import { getIconColorById } from "@/colors";
+import MatchesTable from "@/components/MatchTable";
 import YourBetTable from "@/components/YourBetTable";
+import { MockAPIService } from "@/services/MockAPIService";
+import { GroupFull, Prediction } from "@/types";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import PersonIcon from "@mui/icons-material/Person";
 import { GroupFull, Prediction } from "@/types";
 import { getGroupById, getBetsByGroupId } from "@/services/APIService";
 import { useParams } from "next/navigation";
 import { getIconColorById } from "@/colors";
 import SportsHockeyIcon from "@mui/icons-material/SportsHockey";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function GroupPage() {
   const params = useParams();
@@ -19,7 +23,6 @@ export default function GroupPage() {
   // Mock group data
   const [group, setGroup] = useState<GroupFull | null>(null);
   const [bets, setBets] = useState<Prediction[]>([]);
-  const [yourBets, setYourBets] = useState<Prediction[]>([]);
 
   // Charger les données du groupe et les paris via API
   useEffect(() => {
@@ -33,14 +36,14 @@ export default function GroupPage() {
       setYourBets(yourBets);
     };
     loadData();
-  }, []);
+  }, [groupId]);
 
   return (
     <div className="max-w-5xl mx-auto p-6 flex flex-col gap-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <div className="flex items-center gap-6">
-          <div className="relative w-40 h-40 flex-shrink-0 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+          <div className="relative w-40 h-40 shrink-0 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
             <SportsHockeyIcon sx={{ fontSize: 120, color: iconColor }} />
           </div>
           <div>
@@ -112,7 +115,7 @@ export default function GroupPage() {
       </div>
 
       {/* Tables */}
-      <BetListTable isParticipating={isParticipating} predictions={bets} />
+      <MatchesTable competitionId={1} isParticipating={isParticipating} groupId={Number(groupId)} />
       <YourBetTable bets={bets} isParticipating={isParticipating} />
 
       {/* Rankings */}

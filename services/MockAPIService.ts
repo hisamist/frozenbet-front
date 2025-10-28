@@ -1,5 +1,4 @@
-// services/MockAPIService.ts
-import { Group, GroupFull, User, Competition, Prediction, Match } from "@/types";
+import { Competition, GroupFull, Match, Prediction, User } from "@/types";
 import { mockGroups } from "./MockGroupData";
 
 // --- Mock data ---

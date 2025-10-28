@@ -20,7 +20,7 @@ import { useEffect, useState } from "react";
 interface MatchesTableProps {
   competitionId: number;
   isParticipating: boolean;
-  groupId: number; // 🏆 reçu du parent
+  groupId: number;
 }
 
 export default function MatchesTable({
@@ -31,18 +31,17 @@ export default function MatchesTable({
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
-  const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
+  const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
 
-  const { user } = useAuth(); // ✅ récupération de l'utilisateur connecté
+  const { user } = useAuth(); // 🔥 récupère user.id si connecté
   const userId = user?.id;
 
-  // 🧠 Fetch des matchs de la compétition
   useEffect(() => {
     const fetchMatches = async () => {
       try {
         const res = await getMatchesByCompetitionId(Number(competitionId));
-        console.log("✅ Matches reçus:", res);
-        setMatches(res.data || []);
+        console.log("✅ Réponse API matches :", res);
+        setMatches(res.data || []); // ✅ on prend directement data
       } catch (err: any) {
         console.error("❌ Erreur lors de la récupération des matches :", err);
       } finally {
@@ -55,16 +54,14 @@ export default function MatchesTable({
   if (loading) return <p>Chargement des matches...</p>;
   if (!matches.length) return <p>Aucun match trouvé pour cette compétition.</p>;
 
-  // ⚽ Quand l’utilisateur clique sur "Parier"
-  const handleParierClick = (matchId: number) => {
+  const handleParier = (match: Match) => {
     if (!isParticipating) return;
-    setSelectedMatchId(matchId);
+    setSelectedMatch(match);
     setOpen(true);
   };
 
-  // ✅ Callback quand un pari est soumis depuis le modal
   const handlePredictionSubmit = (prediction: any) => {
-    console.log("🎯 Pari soumis:", prediction);
+    console.log("🎯 Pari soumis :", prediction);
     alert(`Pari enregistré pour le match ${prediction.matchId}`);
     setOpen(false);
   };
@@ -73,14 +70,14 @@ export default function MatchesTable({
     <>
       <TableContainer component={Paper} sx={{ mt: 3 }}>
         <Typography variant="h6" component="div" sx={{ p: 2 }}>
-          Matches de la compétition
+          Matches disponibles
         </Typography>
         <Table>
           <TableHead>
             <TableRow>
               <TableCell>Date</TableCell>
               <TableCell>Équipe domicile</TableCell>
-              <TableCell>Score</TableCell>
+              <TableCell> Predict Score</TableCell>
               <TableCell>Équipe extérieure</TableCell>
               <TableCell>Status</TableCell>
               <TableCell>Lieu</TableCell>
@@ -103,10 +100,10 @@ export default function MatchesTable({
                 <TableCell align="center">
                   <Button
                     variant="contained"
-                    color="success"
+                    color="primary"
                     size="small"
-                    onClick={() => handleParierClick(match.id)}
                     disabled={!isParticipating}
+                    onClick={() => handleParier(match)}
                   >
                     Parier
                   </Button>
@@ -117,12 +114,12 @@ export default function MatchesTable({
         </Table>
       </TableContainer>
 
-      {/* 🪟 Modal de pari */}
-      {open && selectedMatchId !== null && userId && (
+      {/* ✅ Modal de pari */}
+      {open && selectedMatch && userId && (
         <PariModal
           open={open}
           onClose={() => setOpen(false)}
-          matchId={selectedMatchId}
+          matchId={selectedMatch.id}
           groupId={groupId}
           userId={userId}
           onSubmit={handlePredictionSubmit}

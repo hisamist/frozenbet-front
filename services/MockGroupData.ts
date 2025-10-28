@@ -1,4 +1,4 @@
-import { Group, GroupFull, User, Competition, Prediction, Match } from "@/types";
+import { Competition, GroupFull, User } from "@/types";
 
 // --- Mock data ---
 const mockUser: User = {

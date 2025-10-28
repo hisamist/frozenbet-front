@@ -1,8 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
-import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
-import { Competition } from "@/types";
+
 import { getCompetitions } from "@/services/APIService";
+import { Competition } from "@/types";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { useEffect, useState } from "react";
 import Loading from "./Loading";
 
 interface CompetitionSelectProps {

@@ -1,12 +1,12 @@
 "use client";
 
+import { AuthModal } from "@/components/AuthModal";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/NavBar";
-import { AuthProvider } from "@/context/AuthContext"; // ton AuthProvider
+import { AuthProvider } from "@/context/AuthContext";
+import { Notification } from "@/types";
 import { useState } from "react";
 import "./globals.css";
-import { AuthModal } from "@/components/AuthModal";
-import { Notification } from "@/types";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const [openAuthModal, setOpenAuthModal] = useState(false);
@@ -21,6 +21,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en">
+      <head>
+        <title>FrozenBet - Pronostics sportifs entre amis</title>
+        <link rel="icon" href="/logo-frozenbet.ico" sizes="any" />
+      </head>
       <body className="flex flex-col min-h-screen">
         <AuthProvider>
           {/* Navbar avec callback pour ouvrir modal */}
