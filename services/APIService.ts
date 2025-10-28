@@ -2,6 +2,16 @@ import axios, { AxiosError } from "axios";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
+// Normalize list-shaped responses from different API shapes
+const normalizeList = (payload: any) => {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload?.results)) return payload.results;
+  if (Array.isArray(payload?.items)) return payload.items;
+  if (Array.isArray(payload?.groups)) return payload.groups;
+  return [] as any[];
+};
+
 // --------------------
 // Axios instance
 // --------------------
@@ -65,7 +75,7 @@ export const logoutUser = async () => {
 export const getUser = async () => {
   try {
     const res = await api.get("/auth/me"); // backend doit renvoyer user via HttpOnly cookie
-    return res.data; // ex: { user: {...} }
+    return res.data?.user ?? res.data; // ex: { user: {...} } ou direct user
   } catch (err) {
     throw new Error(handleError(err));
   }
@@ -91,7 +101,7 @@ export const createGroup = async (payload: {
 export const getGroups = async () => {
   try {
     const res = await api.get("/groups");
-    return res.data;
+    return normalizeList(res.data);
   } catch (err) {
     throw new Error(handleError(err));
   }
@@ -109,6 +119,60 @@ export const makePrediction = async (payload: {
   try {
     const res = await api.post("/predictions", payload);
     return res.data;
+  } catch (err) {
+    throw new Error(handleError(err));
+  }
+};
+
+// --------------------
+// Extra endpoints to mirror mocks
+// --------------------
+export const getGroupById = async (groupId: number) => {
+  try {
+    const res = await api.get(`/groups/${groupId}`);
+    // Accept either a direct object or wrapped shapes
+    return res.data?.data ?? res.data?.group ?? res.data;
+  } catch (err) {
+    throw new Error(handleError(err));
+  }
+};
+
+export const getBets = async (groupId?: number, matchId?: number) => {
+  try {
+    const res = await api.get("/predictions", {
+      params: {
+        ...(groupId ? { groupId } : {}),
+        ...(matchId ? { matchId } : {}),
+      },
+    });
+    return normalizeList(res.data);
+  } catch (err) {
+    throw new Error(handleError(err));
+  }
+};
+
+export const getBetsByGroupId = async (groupId?: number) => {
+  try {
+    const res = await api.get("/predictions", {
+      params: {
+        ...(groupId ? { groupId } : {}),
+      },
+    });
+    return normalizeList(res.data);
+  } catch (err) {
+    throw new Error(handleError(err));
+  }
+};
+
+export const getYourBets = async (userId: number, groupId?: number) => {
+  try {
+    const res = await api.get("/predictions", {
+      params: {
+        userId,
+        ...(groupId ? { groupId } : {}),
+      },
+    });
+    return normalizeList(res.data);
   } catch (err) {
     throw new Error(handleError(err));
   }

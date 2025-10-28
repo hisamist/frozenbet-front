@@ -7,8 +7,8 @@ import PersonIcon from "@mui/icons-material/Person";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import BetListTable from "@/components/BetTable";
 import YourBetTable from "@/components/YourBetTable";
-import { GroupFull, Match, Prediction, User } from "@/types";
-import { MockAPIService } from "@/services/MockAPIService";
+import { GroupFull, Prediction } from "@/types";
+import { getGroupById, getBetsByGroupId } from "@/services/APIService";
 import { useParams } from "next/navigation";
 import { getIconColorById } from "@/colors";
 import SportsHockeyIcon from "@mui/icons-material/SportsHockey";
@@ -23,16 +23,16 @@ export default function GroupPage() {
   const [bets, setBets] = useState<Prediction[]>([]);
   const [yourBets, setYourBets] = useState<Prediction[]>([]);
 
-  // Charger les données du groupe et les paris mockés
+  // Charger les données du groupe et les paris via API
   useEffect(() => {
     const loadData = async () => {
-      const mockGroup = await MockAPIService.getGroupById(Number(groupId)); // <-- ID de test
-      setGroup(mockGroup as GroupFull);
-      const mockBets = await MockAPIService.getBetsByGroupId();
-      setBets(mockBets);
-      const mockYourBets = await mockBets.filter((bet: Prediction) => bet.userId === 1);
-      console.log(mockYourBets);
-      // Supposons que l'ID utilisateur actuel est 1
+      const apiGroup = await getGroupById(Number(groupId));
+      setGroup(apiGroup as GroupFull);
+      const apiBets = await getBetsByGroupId(Number(groupId));
+      setBets(apiBets);
+      // Exemple: filtrer pour l'utilisateur courant (mock id 1 si pas d'auth)
+      const yourBets = apiBets.filter((bet: Prediction) => bet.userId === 1);
+      setYourBets(yourBets);
     };
     loadData();
   }, []);

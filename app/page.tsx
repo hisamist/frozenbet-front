@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import CreateGroupModal from "@/components/CreateGroupModal";
 import GroupCard from "@/components/GroupCard";
 import { Group } from "@/types";
-import { MockAPIService } from "@/services/MockAPIService";
+import { getGroups } from "@/services/APIService";
 import Loading from "@/components/Loading";
 
 export default function Home() {
@@ -12,10 +12,10 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch mock groups from service
+    // Fetch groups from API
     const fetchGroups = async () => {
       try {
-        const data = await MockAPIService.getGroups();
+        const data = await getGroups();
         setGroups(data);
       } catch (err) {
         console.error("Failed to fetch groups", err);
@@ -48,7 +48,7 @@ export default function Home() {
       <div className="max-w-6xl mx-auto px-4 py-8">
         <h2 className="text-2xl font-bold mb-4">Vos Groupes</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {groups.map((group) => (
+          {Array.isArray(groups) && groups.map((group) => (
             <GroupCard key={group.id} group={group} />
           ))}
         </div>

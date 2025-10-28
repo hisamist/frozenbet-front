@@ -8,7 +8,7 @@ import TableHead from "@mui/material/TableHead";
 import TableBody from "@mui/material/TableBody";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
-import { MockAPIService } from "@/services/MockAPIService";
+import { getBets } from "@/services/APIService";
 
 export default function ResultPage() {
   const params = useParams();
@@ -21,7 +21,7 @@ export default function ResultPage() {
   useEffect(() => {
     async function fetchData() {
       // Récupérer toutes les bets pour ce match
-      const bets = await MockAPIService.getBets(undefined, resultId);
+      const bets = await getBets(undefined, resultId);
       setPredictions(bets);
 
       // Optionnel : récupérer le match depuis le premier pari (mock)
