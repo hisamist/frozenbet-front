@@ -17,34 +17,47 @@ interface AuthContextType {
   }) => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
-  // Optionnel : récupérer l’utilisateur si déjà connecté (cookie HttpOnly)
+  // 🔄 Charger utilisateur depuis localStorage (persistance)
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await AuthService.getUser(); // backend endpoint /auth/me
-        setUser(res.user);
-      } catch {
-        setUser(null);
-      }
-    };
-    fetchUser();
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
   }, []);
 
+  // 🔐 Login
   const login = async (email: string, password: string) => {
-    const data = await AuthService.loginUser({ email, password });
-    setUser(data.user); // backend doit renvoyer user data
+    const res = await AuthService.loginUser({ email, password });
+    console.log("🔐 API Login Response:", res);
+
+    if (res?.data?.user) {
+      setUser(res.data.user);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      localStorage.setItem("token", res.data.token);
+    } else {
+      throw new Error("Réponse du serveur invalide");
+    }
   };
 
+  // 🚪 Logout
   const logout = async () => {
-    await AuthService.logoutUser();
-    setUser(null);
+    try {
+      await AuthService.logoutUser(); // maintenant avec token
+    } catch (err) {
+      console.warn("Logout failed:", err);
+    } finally {
+      setUser(null);
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+    }
   };
 
+  // 🆕 Register
   const register = async (payload: {
     username: string;
     email: string;
@@ -52,8 +65,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     firstName?: string;
     lastName?: string;
   }) => {
-    const data = await AuthService.registerUser(payload);
-    setUser(data.user);
+    const res = await AuthService.registerUser(payload);
+    console.log("🆕 Register response:", res);
+
+    if (res?.data?.user) {
+      setUser(res.data.user);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      localStorage.setItem("token", res.data.token);
+    } else {
+      throw new Error("Réponse du serveur invalide");
+    }
   };
 
   return (

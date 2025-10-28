@@ -3,16 +3,17 @@
 import CreateGroupModal from "@/components/CreateGroupModal";
 import GroupCard from "@/components/GroupCard";
 import Loading from "@/components/Loading";
+import { useAuth } from "@/context/AuthContext";
 import { MockAPIService } from "@/services/MockAPIService";
 import { Group } from "@/types";
 import { useEffect, useState } from "react";
 
 export default function Home() {
+  const { isAuthenticated } = useAuth(); // ✅ Hook pour savoir si user connecté
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch mock groups from service
     const fetchGroups = async () => {
       try {
         const data = await MockAPIService.getGroups();
@@ -23,7 +24,6 @@ export default function Home() {
         setLoading(false);
       }
     };
-
     fetchGroups();
   }, []);
 
@@ -42,7 +42,8 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4 relative z-10">
           <h1 className="text-4xl font-bold mb-4 text-white">Bienvenue sur FrozenBet</h1>
           <p className="text-lg text-white mb-6">Contenu principal de la page d'accueil.</p>
-          <CreateGroupModal isLoggedIn={false} />
+          {/* Passer l’état de l’utilisateur */}
+          <CreateGroupModal isLoggedIn={isAuthenticated} />
         </div>
       </div>
 

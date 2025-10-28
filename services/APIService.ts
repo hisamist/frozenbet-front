@@ -8,7 +8,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/a
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: { "Content-Type": "application/json" },
-  withCredentials: true, // <-- important pour envoyer les cookies HttpOnly
+  withCredentials: true, // important pour envoyer les cookies HttpOnly si backend les utilise
 });
 
 // --------------------
@@ -22,6 +22,17 @@ const handleError = (error: unknown) => {
     return data?.error?.message || error.message;
   }
   return "Unknown error";
+};
+
+// --------------------
+// Helper pour endpoints protégés
+// --------------------
+const authHeaders = () => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No token found. Please login.");
+  return {
+    Authorization: `Bearer ${token}`,
+  };
 };
 
 // --------------------
@@ -53,19 +64,18 @@ export const loginUser = async (payload: { email: string; password: string }) =>
 
 export const logoutUser = async () => {
   try {
-    await api.post("/auth/logout"); // backend doit clear cookie
+    await api.post("/auth/logout", {}, { headers: authHeaders() });
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
   } catch (err) {
     throw new Error(handleError(err));
   }
 };
 
-// --------------------
-// Get current logged-in user
-// --------------------
 export const getUser = async () => {
   try {
-    const res = await api.get("/auth/me"); // backend doit renvoyer user via HttpOnly cookie
-    return res.data; // ex: { user: {...} }
+    const res = await api.get("/auth/me", { headers: authHeaders() });
+    return res.data;
   } catch (err) {
     throw new Error(handleError(err));
   }
@@ -81,7 +91,7 @@ export const createGroup = async (payload: {
   visibility: "public" | "private";
 }) => {
   try {
-    const res = await api.post("/groups", payload);
+    const res = await api.post("/groups", payload, { headers: authHeaders() });
     return res.data;
   } catch (err) {
     throw new Error(handleError(err));
@@ -91,6 +101,28 @@ export const createGroup = async (payload: {
 export const getGroups = async () => {
   try {
     const res = await api.get("/groups");
+    return res.data;
+  } catch (err) {
+    throw new Error(handleError(err));
+  }
+};
+
+export const createRuleByGroupId = async (payload: {
+  groupId: number;
+  name: string;
+  description?: string;
+  points: number;
+}) => {
+  try {
+    const res = await api.post(
+      `/groups/${payload.groupId}/rules`,
+      {
+        name: payload.name,
+        description: payload.description,
+        points: payload.points,
+      },
+      { headers: authHeaders() }
+    );
     return res.data;
   } catch (err) {
     throw new Error(handleError(err));
@@ -107,7 +139,19 @@ export const makePrediction = async (payload: {
   awayScorePrediction: number;
 }) => {
   try {
-    const res = await api.post("/predictions", payload);
+    const res = await api.post("/predictions", payload, { headers: authHeaders() });
+    return res.data;
+  } catch (err) {
+    throw new Error(handleError(err));
+  }
+};
+
+// --------------------
+// Competitions endpoints
+// --------------------
+export const getCompetitions = async () => {
+  try {
+    const res = await api.get("/competitions");
     return res.data;
   } catch (err) {
     throw new Error(handleError(err));

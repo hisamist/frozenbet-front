@@ -1,12 +1,12 @@
 "use client";
 
+import { AuthModal } from "@/components/AuthModal";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/NavBar";
-import { AuthProvider } from "@/context/AuthContext"; // ton AuthProvider
+import { AuthProvider } from "@/context/AuthContext";
+import { Notification } from "@/types";
 import { useState } from "react";
 import "./globals.css";
-import { AuthModal } from "@/components/AuthModal";
-import { Notification } from "@/types";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const [openAuthModal, setOpenAuthModal] = useState(false);
