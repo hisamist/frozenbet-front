@@ -8,14 +8,29 @@ export default function Home() {
     id: i + 1,
     name: `Groupe ${i + 1}`,
     description: "Description du groupe",
-    ownerName: `Owner ${i + 1}`,
-    owner_id: i + 100, // mock owner id
-    avatarUrl: "/images/group-placeholder.jpg", // image placeholder
-    membersCount: Math.floor(Math.random() * 10) + 1,
-    maxMembers: 10,
+    ownerId: i + 100, // mock owner id
+    competitionId: i + 1, // mock competition id
     visibility: i % 2 === 0 ? "public" : "private",
-    invite_code: `INVITE${String(i + 1).padStart(4, "0")}`,
-    created_at: new Date(Date.now() - i * 86400000).toISOString(), // mock created date
+    inviteCode: `INVITE${String(i + 1).padStart(4, "0")}`,
+    createdAt: new Date(Date.now() - i * 86400000).toISOString(), // mock created date
+
+    // Relations optionnelles (facultatives pour le mock)
+    owner: {
+      id: i + 100,
+      username: `owner${i + 1}`,
+      email: `owner${i + 1}@example.com`,
+      passwordHash: "hashed_password",
+      createdAt: new Date(Date.now() - i * 86400000).toISOString(),
+    },
+    competition: {
+      id: i + 1,
+      themeId: 1,
+      name: `Competition ${i + 1}`,
+      startDate: new Date().toISOString(),
+      endDate: new Date(Date.now() + 7 * 86400000).toISOString(),
+      status: "upcoming",
+      createdAt: new Date().toISOString(),
+    },
   }));
 
   return (

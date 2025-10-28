@@ -1,164 +1,182 @@
-// ==========================
-// USERS
-// ==========================
+// =========================
+// Core User Model
+// =========================
 export interface User {
   id: number;
   username: string;
   email: string;
-  password_hash: string;
-  first_name?: string;
-  last_name?: string;
-  avatar_url?: string;
-  created_at: string; // ISO date
+  passwordHash: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  createdAt: string; // ISO date string
 }
 
-// ==========================
-// COMPETITIONS
-// ==========================
+// =========================
+// Competition
+// =========================
 export interface Competition {
   id: number;
-  theme_id?: number;
+  themeId: number;
   name: string;
-  description?: string;
-  start_date: string;
-  end_date?: string;
-  season?: string;
-  status?: string;
-  logo_url?: string;
-  external_api_id?: string;
-  created_at: string;
+  description?: string | null;
+  startDate: string;
+  endDate: string;
+  season?: string | null;
+  status: "upcoming" | "ongoing" | "finished" | string;
+  createdAt: string;
 }
 
-// ==========================
-// TEAMS
-// ==========================
+// =========================
+// Team
+// =========================
 export interface Team {
   id: number;
-  competition_id: number;
+  competitionId: number;
   name: string;
-  short_name?: string;
-  logo_url?: string;
-  country?: string;
-  external_api_id?: string;
-  created_at: string;
+  shortName?: string | null;
+  logoUrl?: string | null;
+  country?: string | null;
+  externalApiId?: string | null;
+  createdAt: string;
+
+  competition?: Competition; // optional relation
 }
 
-// ==========================
-// MATCHES
-// ==========================
+// =========================
+// Match
+// =========================
 export interface Match {
   id: number;
-  competition_id: number;
-  home_team_id: number;
-  away_team_id: number;
-  scheduled_date: string;
-  status?: string;
-  home_score?: number;
-  away_score?: number;
-  round?: string;
-  location?: string;
-  external_api_id?: string;
-  live_updated_at?: string;
-  created_at: string;
-  updated_at?: string;
+  competitionId: number;
+  homeTeamId: number;
+  awayTeamId: number;
+  scheduledDate: string;
+  status: "scheduled" | "ongoing" | "finished" | string;
+  homeScore?: number | null;
+  awayScore?: number | null;
+  location?: string | null;
+  createdAt: string;
+  updatedAt: string;
+
+  competition?: Competition;
+  homeTeam?: Team;
+  awayTeam?: Team;
 }
 
-// ==========================
-// GROUPS
-// ==========================
+// =========================
+// Group
+// =========================
 export interface Group {
   id: number;
   name: string;
-  description?: string;
-  owner_id: number;
-  competition_id?: number;
+  description?: string | null;
+  ownerId: number;
+  competitionId: number;
   visibility: "private" | "public";
-  invite_code: string;
-  max_members?: number;
-  created_at: string;
+  inviteCode?: string | null;
+  createdAt: string;
+
+  owner?: User;
+  competition?: Competition;
 }
 
-// ==========================
-// GROUP_SCORING_RULES
-// ==========================
+// =========================
+// Group Scoring Rules
+// =========================
 export interface GroupScoringRule {
   id: number;
-  group_id: number;
-  rule_type: string;
-  rule_description?: string;
+  groupId: number;
+  ruleDescription?: string | null;
   points: number;
-  created_at: string;
+  createdAt: string;
+
+  group?: Group;
 }
 
-// ==========================
-// GROUP_MEMBERS
-// ==========================
+// =========================
+// Group Members
+// =========================
 export interface GroupMember {
   id: number;
-  group_id: number;
-  user_id: number;
-  role: "owner" | "admin" | "member";
-  joined_at: string;
-  total_points?: number;
+  groupId: number;
+  userId: number;
+  role: "member" | "admin" | "owner";
+  joinedAt: string;
+  totalPoints: number;
+
+  user?: User;
+  group?: Group;
 }
 
-// ==========================
-// PREDICTIONS
-// ==========================
+// =========================
+// Predictions
+// =========================
 export interface Prediction {
   id: number;
-  user_id: number;
-  match_id: number;
-  group_id: number;
-  home_score_prediction: number;
-  away_score_prediction: number;
-  predicted_at: string;
-  points_earned?: number;
-  is_locked: boolean;
+  userId: number;
+  matchId: number;
+  groupId: number;
+  homeScorePrediction: number;
+  awayScorePrediction: number;
+  predictedAt: string;
+  pointsEarned?: number | null;
+
+  user?: User;
+  match?: Match;
+  group?: Group;
 }
 
-// ==========================
-// GROUP_INVITATIONS
-// ==========================
+// =========================
+// Group Invitations
+// =========================
 export interface GroupInvitation {
   id: number;
-  group_id: number;
-  inviter_id: number;
-  invitee_email: string;
-  invitee_user_id?: number;
-  status: string;
+  groupId: number;
+  inviterId: number;
+  inviteeEmail: string;
+  inviteeUserId?: number | null;
+  status: "pending" | "accepted" | "declined" | string;
   token: string;
-  expires_at: string;
-  created_at: string;
-  responded_at?: string;
+  expiresAt: string;
+  createdAt: string;
+  respondedAt?: string | null;
+
+  group?: Group;
+  inviter?: User;
+  inviteeUser?: User;
 }
 
-// ==========================
-// GROUP_RANKINGS
-// ==========================
+// =========================
+// Group Rankings
+// =========================
 export interface GroupRanking {
   id: number;
-  group_id: number;
-  user_id: number;
-  total_points: number;
-  total_predictions: number;
-  correct_predictions: number;
-  exact_scores: number;
-  rank: number;
-  previous_rank?: number;
+  groupId: number;
+  userId: number;
+  totalPoints: number;
+  totalPredictions: number;
+  correctPredictions: number;
+  rank?: number | null;
+  previousRank?: number | null;
+
+  group?: Group;
+  user?: User;
 }
 
-// ==========================
-// RELATION TYPES (optionnels)
-// ==========================
+// =========================
+// Example Composite Types
+// =========================
 
-export interface GroupWithRelations extends Group {
-  owner?: User;
+// Group with all nested relations (useful for dashboards)
+export interface GroupFull extends Group {
   members?: GroupMember[];
-  competition?: Competition;
-  rules?: GroupScoringRule[];
-  invitations?: GroupInvitation[];
+  scoringRules?: GroupScoringRule[];
   rankings?: GroupRanking[];
+  invitations?: GroupInvitation[];
+}
+
+// Match with predictions from a specific group
+export interface MatchWithPredictions extends Match {
   predictions?: Prediction[];
 }
 
