@@ -6,12 +6,12 @@ import TextField from "@mui/material/TextField";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import { useAuth } from "@/context/AuthContext"; // hook AuthProvider
+import { useAuth } from "@/context/AuthContext";
 
 interface AuthModalProps {
   open: boolean;
   onClose: () => void;
-  onSuccess: () => void; // appelé après login/register
+  onSuccess: () => void;
 }
 
 export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
@@ -19,9 +19,9 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
-
-  const { login, register } = useAuth(); // fonctions depuis AuthProvider
   const [loading, setLoading] = useState(false);
+
+  const { login, register } = useAuth();
 
   const handleAuthSubmit = async () => {
     setLoading(true);
@@ -34,6 +34,7 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
           return;
         }
         await login(email, password);
+        alert("Connexion réussie ✅");
       } else {
         // Register
         if (!username || !email || !password) {
@@ -42,6 +43,7 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
           return;
         }
         await register({ username, email, password });
+        alert("Compte créé avec succès ✅");
       }
 
       // Reset inputs
@@ -52,7 +54,7 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
       onClose();
       onSuccess();
     } catch (err: any) {
-      alert(err.message || "Erreur inconnue");
+      alert(err.message || "Erreur inconnue ❌");
     } finally {
       setLoading(false);
     }

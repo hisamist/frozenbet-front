@@ -13,73 +13,80 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import NotificationsPopover from "./NotificationPopover";
 import { Notification } from "@/types";
+import { useAuth } from "@/context/AuthContext";
 
 interface NavbarProps {
-  onLoginClick: () => void;
-  notifications?: Notification[]; // optionnel pour SSR
+  onLoginClick: () => void; // ouvre AuthModal
+  notifications?: Notification[];
 }
 
 export default function Navbar({ onLoginClick, notifications = [] }: NavbarProps) {
-  const [mounted, setMounted] = useState(false); // pour éviter le SSR mismatch
+  const { user, logout } = useAuth(); // hook AuthProvider
+  const [mounted, setMounted] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [clientNotifications, setClientNotifications] = useState<Notification[]>([]);
-
   const open = Boolean(anchorEl);
 
   useEffect(() => {
-    // ⚡️ marquer que le composant est monté côté client
     setMounted(true);
-    setClientNotifications(notifications); // initialiser les notifications côté client
+    setClientNotifications(notifications);
   }, [notifications]);
 
   const handleNotificationsClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
+  const handleClose = () => setAnchorEl(null);
+
+  const handleAuthClick = () => {
+    if (user) {
+      logout(); // si connecté, bouton devient logout
+    } else {
+      onLoginClick(); // si pas connecté, ouvre AuthModal
+    }
   };
 
-  if (!mounted) return null; // on ne rend rien côté serveur
+  if (!mounted) return null;
 
   return (
     <>
       <AppBar position="static" color="primary">
         <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
             <Link href="/" style={{ color: "inherit", textDecoration: "none" }}>
               FrozenBet
             </Link>
           </Typography>
 
           <Box sx={{ display: "flex", gap: 2, mr: 2 }}>
-            <Button component={Link} href="/" color="inherit">
-              Accueil
-            </Button>
-            <Button color="inherit" onClick={onLoginClick}>
-              Login
+            <Button color="inherit" onClick={handleAuthClick}>
+              {user ? "Logout" : "Login"}
             </Button>
           </Box>
 
-          <IconButton color="inherit" onClick={handleNotificationsClick}>
-            <Badge badgeContent={clientNotifications.length} color="error">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
-
-          <IconButton color="inherit" sx={{ ml: 1 }}>
-            <AccountCircleIcon />
-          </IconButton>
+          {user && (
+            <>
+              <IconButton color="inherit" onClick={handleNotificationsClick}>
+                <Badge badgeContent={clientNotifications.length} color="error">
+                  <NotificationsIcon />
+                </Badge>
+              </IconButton>
+              <IconButton color="inherit" sx={{ ml: 1 }}>
+                <AccountCircleIcon />
+              </IconButton>
+            </>
+          )}
         </Toolbar>
       </AppBar>
 
-      {/* Popover séparé */}
-      <NotificationsPopover
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        notifications={clientNotifications}
-      />
+      {user && (
+        <NotificationsPopover
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          notifications={clientNotifications}
+        />
+      )}
     </>
   );
 }
