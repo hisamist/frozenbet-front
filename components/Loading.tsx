@@ -1,8 +1,7 @@
-// components/Loading.tsx
 "use client";
 
-import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
 
 interface LoadingProps {
   message?: string;

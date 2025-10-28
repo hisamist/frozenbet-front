@@ -1,12 +1,13 @@
 "use client";
-import { useState } from "react";
+
 import ModalComponent from "@/components/ModalComponent";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import Box from "@mui/material/Box";
 import { useAuth } from "@/context/AuthContext";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Tab from "@mui/material/Tab";
+import Tabs from "@mui/material/Tabs";
+import TextField from "@mui/material/TextField";
+import { useState } from "react";
 
 interface AuthModalProps {
   open: boolean;

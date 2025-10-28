@@ -1,10 +1,11 @@
 "use client";
-import { useState } from "react";
+
 import ModalComponent from "@/components/ModalComponent";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import { useState } from "react";
 
 interface PariModalProps {
   open: boolean;

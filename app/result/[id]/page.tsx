@@ -1,14 +1,15 @@
 "use client";
-import { useParams } from "next/navigation";
-import { useState, useEffect } from "react";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Table from "@mui/material/Table";
-import TableHead from "@mui/material/TableHead";
-import TableBody from "@mui/material/TableBody";
-import TableRow from "@mui/material/TableRow";
-import TableCell from "@mui/material/TableCell";
+
 import { MockAPIService } from "@/services/MockAPIService";
+import Box from "@mui/material/Box";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Typography from "@mui/material/Typography";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function ResultPage() {
   const params = useParams();

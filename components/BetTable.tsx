@@ -1,21 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { PariModal } from "@/components/PariModal";
+import { useAuth } from "@/context/AuthContext";
 import { getMatchesByCompetitionId } from "@/services/APIService";
 import { Match } from "@/types";
 import {
+  Button,
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  Button,
   Typography,
 } from "@mui/material";
-import { PariModal } from "@/components/PariModal";
-import { useAuth } from "@/context/AuthContext";
+import { useEffect, useState } from "react";
 
 interface MatchesTableProps {
   competitionId: number;

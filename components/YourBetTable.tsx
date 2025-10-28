@@ -1,8 +1,6 @@
 "use client";
 
-import React from "react";
-import Image from "next/image";
-import { Prediction } from "@/types"; // Make sure this path is correct
+import { Prediction } from "@/types";
 
 interface PariTableProps {
   bets: Prediction[];

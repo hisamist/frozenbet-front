@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
-import { Popover, List, ListItem, ListItemButton, ListItemText } from "@mui/material";
-import Link from "next/link";
 import { Notification } from "@/types";
+import { List, ListItem, ListItemButton, ListItemText, Popover } from "@mui/material";
+import Link from "next/link";
 
 interface NotificationsPopoverProps {
   open: boolean;

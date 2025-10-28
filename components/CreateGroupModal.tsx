@@ -1,12 +1,13 @@
 "use client";
-import { useState } from "react";
+
 import ModalComponent from "@/components/ModalComponent";
+import { createGroup, createRuleByGroupId } from "@/services/APIService";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
+import { useState } from "react";
 import { AuthModal } from "./AuthModal";
-import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import CompetitionSelect from "./CompetitionSelect";
-import { createGroup, createRuleByGroupId } from "@/services/APIService";
 
 interface CreateGroupModalProps {
   isLoggedIn: boolean;
