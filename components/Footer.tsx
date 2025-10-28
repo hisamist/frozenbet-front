@@ -1,7 +1,4 @@
 import { Box, Container, Typography, Link, Stack, IconButton } from "@mui/material";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import TwitterIcon from "@mui/icons-material/Twitter";
-import InstagramIcon from "@mui/icons-material/Instagram";
 
 export default function Footer() {
   return (

@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
-import GroupIcon from "@mui/icons-material/Group";
 import PersonIcon from "@mui/icons-material/Person";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import BetListTable from "@/components/BetTable";

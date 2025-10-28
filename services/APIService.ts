@@ -36,6 +36,7 @@ export const registerUser = async (payload: {
 }) => {
   try {
     const res = await api.post("/auth/register", payload);
+    console.log(res);
     return res.data;
   } catch (err) {
     throw new Error(handleError(err));
@@ -53,7 +54,7 @@ export const loginUser = async (payload: { email: string; password: string }) =>
 
 export const logoutUser = async () => {
   try {
-    await api.post("/auth/logout"); // backend doit clear cookie
+    await api.post("/auth/logout");
   } catch (err) {
     throw new Error(handleError(err));
   }
@@ -64,7 +65,7 @@ export const logoutUser = async () => {
 // --------------------
 export const getUser = async () => {
   try {
-    const res = await api.get("/auth/me"); // backend doit renvoyer user via HttpOnly cookie
+    const res = await api.get("/auth/me");
     return res.data; // ex: { user: {...} }
   } catch (err) {
     throw new Error(handleError(err));

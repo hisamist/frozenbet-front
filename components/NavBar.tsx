@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
@@ -11,17 +11,26 @@ import Box from "@mui/material/Box";
 import Link from "next/link";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import { Notification } from "@/types";
 import NotificationsPopover from "./NotificationPopover";
+import { Notification } from "@/types";
 
 interface NavbarProps {
   onLoginClick: () => void;
-  notifications: Notification[];
+  notifications?: Notification[]; // optionnel pour SSR
 }
 
-export default function Navbar({ onLoginClick, notifications }: NavbarProps) {
+export default function Navbar({ onLoginClick, notifications = [] }: NavbarProps) {
+  const [mounted, setMounted] = useState(false); // pour éviter le SSR mismatch
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [clientNotifications, setClientNotifications] = useState<Notification[]>([]);
+
   const open = Boolean(anchorEl);
+
+  useEffect(() => {
+    // ⚡️ marquer que le composant est monté côté client
+    setMounted(true);
+    setClientNotifications(notifications); // initialiser les notifications côté client
+  }, [notifications]);
 
   const handleNotificationsClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -30,6 +39,8 @@ export default function Navbar({ onLoginClick, notifications }: NavbarProps) {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  if (!mounted) return null; // on ne rend rien côté serveur
 
   return (
     <>
@@ -42,16 +53,16 @@ export default function Navbar({ onLoginClick, notifications }: NavbarProps) {
           </Typography>
 
           <Box sx={{ display: "flex", gap: 2, mr: 2 }}>
-            <Link href="/" passHref>
-              <Button color="inherit">Accueil</Button>
-            </Link>
+            <Button component={Link} href="/" color="inherit">
+              Accueil
+            </Button>
             <Button color="inherit" onClick={onLoginClick}>
               Login
             </Button>
           </Box>
 
           <IconButton color="inherit" onClick={handleNotificationsClick}>
-            <Badge badgeContent={notifications.length} color="error">
+            <Badge badgeContent={clientNotifications.length} color="error">
               <NotificationsIcon />
             </Badge>
           </IconButton>
@@ -62,12 +73,12 @@ export default function Navbar({ onLoginClick, notifications }: NavbarProps) {
         </Toolbar>
       </AppBar>
 
-      {/* ✅ Popover séparé du DOM principal */}
+      {/* Popover séparé */}
       <NotificationsPopover
         open={open}
         anchorEl={anchorEl}
         onClose={handleClose}
-        notifications={notifications}
+        notifications={clientNotifications}
       />
     </>
   );
