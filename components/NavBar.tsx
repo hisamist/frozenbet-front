@@ -1,19 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { Notification } from "@/types";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import NotificationsIcon from "@mui/icons-material/Notifications";
 import AppBar from "@mui/material/AppBar";
+import Badge from "@mui/material/Badge";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
-import Badge from "@mui/material/Badge";
-import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
 import Link from "next/link";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { useEffect, useState } from "react";
 import NotificationsPopover from "./NotificationPopover";
-import { Notification } from "@/types";
-import { useAuth } from "@/context/AuthContext";
 
 interface NavbarProps {
   onLoginClick: () => void; // ouvre AuthModal
@@ -23,12 +23,16 @@ interface NavbarProps {
 export default function Navbar({ onLoginClick, notifications = [] }: NavbarProps) {
   const { user, logout } = useAuth(); // hook AuthProvider
   const [mounted, setMounted] = useState(false);
+  const { isAuthenticated } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [clientNotifications, setClientNotifications] = useState<Notification[]>([]);
   const open = Boolean(anchorEl);
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
     setClientNotifications(notifications);
   }, [notifications]);
 
@@ -52,25 +56,33 @@ export default function Navbar({ onLoginClick, notifications = [] }: NavbarProps
     <>
       <AppBar position="static" color="primary">
         <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            <Link href="/" style={{ color: "inherit", textDecoration: "none" }}>
+          <Link href="/" className="text-inherit no-underline flex items-center grow">
+            <img
+              src="/logo-frozenbet.png"
+              alt="FrozenBet Logo"
+              width={40}
+              height={40}
+              className="mr-3"
+            />
+            <Typography variant="h6" component="span">
               FrozenBet
-            </Link>
-          </Typography>
+            </Typography>
+          </Link>
 
-          <Box sx={{ display: "flex", gap: 2, mr: 2 }}>
-            <Button color="inherit" onClick={handleAuthClick}>
-              {user ? "Logout" : "Login"}
-            </Button>
-          </Box>
-
-          {user && (
+          {!isAuthenticated ? (
+            <Box sx={{ display: "flex", gap: 2, mr: 2 }}>
+              <Button color="inherit" onClick={handleAuthClick}>
+                {user ? "Logout" : "Login"}
+              </Button>
+            </Box>
+          ) : (
             <>
               <IconButton color="inherit" onClick={handleNotificationsClick}>
-                <Badge badgeContent={clientNotifications.length} color="error">
+                <Badge badgeContent={notifications.length} color="error">
                   <NotificationsIcon />
                 </Badge>
               </IconButton>
+
               <IconButton color="inherit" sx={{ ml: 1 }}>
                 <AccountCircleIcon />
               </IconButton>
