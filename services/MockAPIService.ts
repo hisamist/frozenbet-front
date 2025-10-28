@@ -1,9 +1,7 @@
 // services/MockAPIService.ts
 import { Group, User, Competition, Prediction } from "@/types";
 
-// --------------------
-// Mock Data
-// --------------------
+// --- Mock data ---
 const mockUser: User = {
   id: 1,
   username: "johnwick",
@@ -50,9 +48,7 @@ const mockPredictions: Prediction[] = [
   },
 ];
 
-// --------------------
-// Mock API Service
-// --------------------
+// --- Mock API Service ---
 export const MockAPIService = {
   // Auth
   registerUser: async (payload: { username: string; email: string; password: string }) => {
@@ -68,6 +64,11 @@ export const MockAPIService = {
   logoutUser: async () => {
     console.log("Mock logoutUser");
     return { success: true };
+  },
+
+  getUser: async () => {
+    console.log("Mock getUser");
+    return mockUser;
   },
 
   // Groups
@@ -95,6 +96,11 @@ export const MockAPIService = {
     return mockGroups;
   },
 
+  getGroupById: async (groupId: number) => {
+    console.log("Mock getGroupById", groupId);
+    return mockGroups.find((g) => g.id === groupId);
+  },
+
   // Predictions
   makePrediction: async (payload: {
     matchId: number;
@@ -112,5 +118,12 @@ export const MockAPIService = {
     };
     mockPredictions.push(prediction);
     return prediction;
+  },
+
+  getPredictions: async (groupId?: number, matchId?: number) => {
+    console.log("Mock getPredictions", { groupId, matchId });
+    return mockPredictions.filter(
+      (p) => (!groupId || p.groupId === groupId) && (!matchId || p.matchId === matchId)
+    );
   },
 };
