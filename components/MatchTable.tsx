@@ -4,20 +4,7 @@ import { PariModal } from "@/components/PariModal";
 import { useAuth } from "@/context/AuthContext";
 import { getMatchesByCompetitionId, makePrediction } from "@/services/APIService";
 import { Match } from "@/types";
-import {
-  Button,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-  Tooltip,
-  Box,
-  TableSortLabel,
-} from "@mui/material";
+import { Button, Tooltip, Box, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 
 interface MatchesTableProps {
@@ -129,87 +116,121 @@ export default function MatchesTable({
 
   return (
     <>
-      <TableContainer component={Paper} sx={{ mt: 3, maxHeight: 500 }}>
-        <Typography variant="h6" sx={{ p: 2 }}>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mt-6">
+        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
           Matches disponibles
-        </Typography>
-        <Table stickyHeader>
-          <TableHead>
-            <TableRow>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === "date"}
-                  direction={orderBy === "date" ? order : "desc"}
+        </h2>
+        <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0 z-10">
+              <tr>
+                <th
+                  className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
                   onClick={() => handleSort("date")}
                 >
-                  Date
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>Équipe domicile</TableCell>
-              <TableCell>Score</TableCell>
-              <TableCell>Équipe extérieure</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Lieu</TableCell>
-              <TableCell align="center">
-                <TableSortLabel
-                  active={orderBy === "button"}
-                  direction={orderBy === "button" ? order : "desc"}
+                  <div className="flex items-center gap-1">
+                    Date
+                    {orderBy === "date" && (
+                      <span className="text-blue-600 dark:text-blue-400">
+                        {order === "asc" ? "↑" : "↓"}
+                      </span>
+                    )}
+                  </div>
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                  Équipe domicile
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                  Score
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                  Équipe extérieure
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                  Lieu
+                </th>
+                <th
+                  className="px-4 py-3 text-center text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
                   onClick={() => handleSort("button")}
                 >
-                  Action
-                </TableSortLabel>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {sortedMatches.map((match) => {
-              const matchDate = new Date(match.scheduledDate);
-              const now = new Date();
-              const canParier = isParticipating && match.status === "scheduled" && matchDate > now;
-
-              return (
-                <TableRow key={match.id} sx={{ opacity: canParier ? 1 : 0.5 }}>
-                  <TableCell>{matchDate.toLocaleString()}</TableCell>
-                  <TableCell>{match.homeTeam?.name || match.homeTeamId}</TableCell>
-                  <TableCell>
-                    {match.homeScore != null && match.awayScore != null
-                      ? `${match.homeScore} - ${match.awayScore}`
-                      : "-"}
-                  </TableCell>
-                  <TableCell>{match.awayTeam?.name || match.awayTeamId}</TableCell>
-                  <TableCell>{match.status}</TableCell>
-                  <TableCell>{match.location || "-"}</TableCell>
-                  <TableCell align="center">
-                    <Tooltip
-                      title={
-                        !isParticipating
-                          ? "Vous ne participez pas à ce groupe"
-                          : match.status !== "scheduled"
-                            ? "Le pari est fermé pour ce match"
-                            : matchDate <= now
-                              ? "Le match a déjà commencé ou est terminé"
-                              : ""
-                      }
-                    >
-                      <span>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          size="small"
-                          disabled={!canParier}
-                          onClick={() => handleParier(match)}
-                        >
-                          Parier
-                        </Button>
+                  <div className="flex items-center justify-center gap-1">
+                    Action
+                    {orderBy === "button" && (
+                      <span className="text-blue-600 dark:text-blue-400">
+                        {order === "asc" ? "↑" : "↓"}
                       </span>
-                    </Tooltip>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                    )}
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              {sortedMatches.map((match) => {
+                const matchDate = new Date(match.scheduledDate);
+                const now = new Date();
+                const canParier =
+                  isParticipating && match.status === "scheduled" && matchDate > now;
+
+                return (
+                  <tr
+                    key={match.id}
+                    className={`hover:bg-gray-50 dark:hover:bg-gray-700 ${canParier ? "opacity-100" : "opacity-50"}`}
+                  >
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                      {matchDate.toLocaleString()}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                      {match.homeTeam?.name || match.homeTeamId}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                      {match.homeScore != null && match.awayScore != null
+                        ? `${match.homeScore} - ${match.awayScore}`
+                        : "-"}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                      {match.awayTeam?.name || match.awayTeamId}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                      {match.status}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                      {match.location || "-"}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-center text-sm">
+                      <Tooltip
+                        title={
+                          !isParticipating
+                            ? "Vous ne participez pas à ce groupe"
+                            : match.status !== "scheduled"
+                              ? "Le pari est fermé pour ce match"
+                              : matchDate <= now
+                                ? "Le match a déjà commencé ou est terminé"
+                                : ""
+                        }
+                      >
+                        <span>
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            size="small"
+                            disabled={!canParier}
+                            onClick={() => handleParier(match)}
+                          >
+                            Parier
+                          </Button>
+                        </span>
+                      </Tooltip>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       {open && selectedMatch && userId && (
         <PariModal

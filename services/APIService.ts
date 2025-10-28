@@ -118,6 +118,15 @@ export const getGroups = async () => {
   }
 };
 
+export const getUserGroups = async () => {
+  try {
+    const res = await api.get("/groups/user", { headers: authHeaders() });
+    return normalizeList(res.data);
+  } catch (err) {
+    throw new Error(handleError(err));
+  }
+};
+
 export const createRuleByGroupId = async (payload: {
   groupId: number;
   description?: string;
@@ -210,6 +219,17 @@ export const joinGroup = async (groupId: number, inviteCode?: string) => {
 export const leaveGroup = async (groupId: number) => {
   try {
     const res = await api.post(`/groups/${groupId}/leave`, {}, { headers: authHeaders() });
+    return res.data;
+  } catch (err) {
+    throw new Error(handleError(err));
+  }
+};
+
+export const removeMember = async (groupId: number, userId: number) => {
+  try {
+    const res = await api.delete(`/groups/${groupId}/members/${userId}`, {
+      headers: authHeaders(),
+    });
     return res.data;
   } catch (err) {
     throw new Error(handleError(err));
