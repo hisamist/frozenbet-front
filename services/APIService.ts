@@ -227,6 +227,10 @@ export const getYourBets = async (userId: number, groupId?: number) => {
   }
 };
 
+// --------------------
+// Competitions endpoints
+// --------------------
+
 export const getMatchesByCompetitionId = async (competitionId: number) => {
   try {
     // Use configured API base URL instead of Next.js local API route
@@ -236,6 +240,10 @@ export const getMatchesByCompetitionId = async (competitionId: number) => {
     throw new Error(handleError(err));
   }
 };
+
+// --------------------
+// Stastics endpoints
+// --------------------
 
 export const getStatisticsByGroupId = async (groupId: number) => {
   try {

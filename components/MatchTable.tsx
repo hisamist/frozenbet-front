@@ -40,7 +40,6 @@ export default function MatchesTable({
     const fetchMatches = async () => {
       try {
         const res = await getMatchesByCompetitionId(Number(competitionId));
-        console.log("✅ Réponse API matches :", res);
         setMatches(res || []);
       } catch (err: any) {
         console.error("❌ Erreur lors de la récupération des matches :", err);
@@ -65,8 +64,6 @@ export default function MatchesTable({
     awayScorePrediction: number
   ) => {
     if (!selectedMatch || !userId) return;
-    console.log("2", homeScorePrediction);
-    console.log(awayScorePrediction);
     const payload = {
       matchId: selectedMatch.id,
       groupId,
