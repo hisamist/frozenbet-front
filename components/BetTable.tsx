@@ -13,62 +13,35 @@ import {
   Avatar,
   Typography,
 } from "@mui/material";
-import { PariModal } from "@/components/PariModal"; // Vérifie le chemin
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { PariModal } from "@/components/PariModal";
+import { Prediction } from "@/types";
 
-interface Bet {
-  id: number;
-  match: string;
-  scheduledDate: string;
-  admin: string;
-  adminAvatar: string;
-  homeScore: number;
-  awayScore: number;
-}
-
-interface TableComponentProps {
+interface BetTableProps {
   isParticipating: boolean;
+  predictions?: Prediction[];
   userId?: number;
   groupId?: number;
 }
 
-const mockBets: Bet[] = [
-  {
-    id: 1,
-    match: "Team A vs Team B",
-    scheduledDate: "2025-11-01 20:00",
-    admin: "Alice",
-    adminAvatar: "/images/user1.jpg",
-    homeScore: 2,
-    awayScore: 1,
-  },
-  {
-    id: 2,
-    match: "Team C vs Team D",
-    scheduledDate: "2025-11-02 18:30",
-    admin: "Alice",
-    adminAvatar: "/images/user1.jpg",
-    homeScore: 1,
-    awayScore: 1,
-  },
-];
-
 export default function BetTable({
   isParticipating,
+  predictions = [], // fallback à []
   userId = 1,
   groupId = 1,
-}: TableComponentProps) {
+}: BetTableProps) {
   const [open, setOpen] = useState(false);
-  const [currentBetId, setCurrentBetId] = useState<number | null>(null);
+  const [currentPredictionId, setCurrentPredictionId] = useState<number | null>(null);
 
-  const handleParticipate = (betId: number) => {
+  const handleParticipate = (predictionId: number) => {
     if (!isParticipating) return;
-    setCurrentBetId(betId);
+    setCurrentPredictionId(predictionId);
     setOpen(true);
   };
 
   const handlePredictionSubmit = (prediction: any) => {
     console.log("Pari soumis:", prediction);
-    alert(`Pari enregistré pour le bet ${prediction.match_id}`);
+    alert(`Pari enregistré pour le match ${prediction.matchId}`);
     setOpen(false);
   };
 
@@ -83,47 +56,59 @@ export default function BetTable({
             <TableRow>
               <TableCell>Match</TableCell>
               <TableCell>Date</TableCell>
-              <TableCell>Admin</TableCell>
-              <TableCell>Score</TableCell>
+              <TableCell>Utilisateur</TableCell>
+              <TableCell>Score prédit</TableCell>
               <TableCell>Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {mockBets.map((bet) => (
-              <TableRow key={bet.id}>
-                <TableCell>{bet.match}</TableCell>
-                <TableCell>{bet.scheduledDate}</TableCell>
-                <TableCell>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <Avatar src={bet.adminAvatar} alt={bet.admin} />
-                    <span>{bet.admin}</span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {bet.homeScore} - {bet.awayScore}
-                </TableCell>
-                <TableCell>
-                  <Button
-                    variant="contained"
-                    color="success"
-                    size="small"
-                    onClick={() => handleParticipate(bet.id)}
-                    disabled={!isParticipating}
-                  >
-                    Parier
-                  </Button>
+            {predictions.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} align="center">
+                  Aucun pari disponible
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              predictions.map((pred) => (
+                <TableRow key={pred.id}>
+                  <TableCell>
+                    {pred.match?.homeTeam?.name || "Home"} vs {pred.match?.awayTeam?.name || "Away"}
+                  </TableCell>
+                  <TableCell>{pred.match?.scheduledDate}</TableCell>
+                  <TableCell>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <Avatar>
+                        <AccountCircleIcon />
+                      </Avatar>
+                      <span>{pred.user?.username}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {pred.homeScorePrediction} - {pred.awayScorePrediction}
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="contained"
+                      color="success"
+                      size="small"
+                      onClick={() => handleParticipate(pred.id)}
+                      disabled={!isParticipating}
+                    >
+                      Parier
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>
 
-      {open && currentBetId !== null && (
+      {open && currentPredictionId !== null && (
         <PariModal
           open={open}
           onClose={() => setOpen(false)}
-          matchId={currentBetId}
+          matchId={currentPredictionId}
           groupId={groupId}
           userId={userId}
           onSubmit={handlePredictionSubmit}

@@ -2,18 +2,10 @@
 
 import React from "react";
 import Image from "next/image";
-
-interface Bet {
-  id: number;
-  match: string;
-  scheduledDate: string;
-  predictedScore: string;
-  status: "finished" | "active";
-  resultId: string;
-}
+import { Prediction } from "@/types"; // Make sure this path is correct
 
 interface PariTableProps {
-  bets: Bet[];
+  bets: Prediction[];
   isParticipating: boolean;
 }
 
@@ -45,14 +37,22 @@ export default function YourBetTable({ bets, isParticipating }: PariTableProps) 
         <tbody>
           {bets.map((bet) => (
             <tr key={bet.id} className="border-t border-gray-200 dark:border-gray-700">
-              <td className="px-2 py-1">{bet.match}</td>
-              <td className="px-2 py-1">{bet.scheduledDate}</td>
-              <td className="px-2 py-1">{bet.predictedScore}</td>
-              <td className="px-2 py-1">{bet.status}</td>
               <td className="px-2 py-1">
-                {bet.status === "finished" ? (
+                {bet.match?.homeTeam?.name || "Home"} vs {bet.match?.awayTeam?.name || "Away"}
+              </td>
+              <td className="px-2 py-1">
+                {new Date(bet.match?.scheduledDate || "").toLocaleString()}
+              </td>
+              <td className="px-2 py-1">
+                {bet.homeScorePrediction} - {bet.awayScorePrediction}
+              </td>
+              <td className="px-2 py-1">
+                {bet.match?.status === "finished" ? "Terminé" : "En cours"}
+              </td>
+              <td className="px-2 py-1">
+                {bet.match?.status === "finished" ? (
                   <a
-                    href={`/result/${bet.resultId}`}
+                    href={`/result/${bet.match?.id}`}
                     className="px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700"
                   >
                     Voir résultat
