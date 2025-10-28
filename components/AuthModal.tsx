@@ -20,37 +20,58 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const { login, register } = useAuth();
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
+
   const handleAuthSubmit = async () => {
     setLoading(true);
+    const newErrors: { [key: string]: string } = {};
+
+    if (authTab === 0) {
+      // Login validation
+      if (!email) newErrors.email = "Email obligatoire";
+      else if (!emailRegex.test(email)) newErrors.email = "Email invalide";
+
+      if (!password) newErrors.password = "Mot de passe obligatoire";
+      else if (!passwordRegex.test(password))
+        newErrors.password =
+          "Mot de passe ≥8 caractères, 1 majuscule, 1 chiffre, 1 caractère spécial";
+    } else {
+      // Register validation
+      if (!username) newErrors.username = "Nom d'utilisateur obligatoire";
+
+      if (!email) newErrors.email = "Email obligatoire";
+      else if (!emailRegex.test(email)) newErrors.email = "Email invalide";
+
+      if (!password) newErrors.password = "Mot de passe obligatoire";
+      else if (!passwordRegex.test(password))
+        newErrors.password =
+          "Mot de passe ≥8 caractères, 1 majuscule, 1 chiffre, 1 caractère spécial";
+    }
+
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      setLoading(false);
+      return;
+    }
+
     try {
       if (authTab === 0) {
-        // Login
-        if (!email || !password) {
-          alert("Veuillez remplir email et mot de passe");
-          setLoading(false);
-          return;
-        }
         await login(email, password);
         alert("Connexion réussie ✅");
       } else {
-        // Register
-        if (!username || !email || !password) {
-          alert("Veuillez remplir tous les champs pour l'inscription");
-          setLoading(false);
-          return;
-        }
         await register({ username, email, password });
         alert("Compte créé avec succès ✅");
       }
 
-      // Reset inputs
       setEmail("");
       setPassword("");
       setUsername("");
-
+      setErrors({});
       onClose();
       onSuccess();
     } catch (err: any) {
@@ -76,6 +97,8 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
               margin="normal"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              error={!!errors.email}
+              helperText={errors.email}
             />
             <TextField
               fullWidth
@@ -85,6 +108,8 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
               margin="normal"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              error={!!errors.password}
+              helperText={errors.password}
             />
           </>
         ) : (
@@ -96,6 +121,8 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
               margin="normal"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              error={!!errors.username}
+              helperText={errors.username}
             />
             <TextField
               fullWidth
@@ -104,6 +131,8 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
               margin="normal"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              error={!!errors.email}
+              helperText={errors.email}
             />
             <TextField
               fullWidth
@@ -113,6 +142,8 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
               margin="normal"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              error={!!errors.password}
+              helperText={errors.password}
             />
           </>
         )}
