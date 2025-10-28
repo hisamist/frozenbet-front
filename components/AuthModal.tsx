@@ -33,7 +33,7 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
           setLoading(false);
           return;
         }
-        await login(email, password);
+        // await login(email, password);
       } else {
         // Register
         if (!username || !email || !password) {

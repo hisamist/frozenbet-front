@@ -29,62 +29,13 @@ export default function GroupPage() {
       const mockGroup = await MockAPIService.getGroupById(Number(groupId)); // <-- ID de test
       setGroup(mockGroup as GroupFull);
       const mockBets = await MockAPIService.getBetsByGroupId();
-      const mockYourBets = mockBets.filter((bet: Prediction) => bet.userId === 1);
-      console.log(mockBets);
+      setBets(mockBets);
+      const mockYourBets = await mockBets.filter((bet: Prediction) => bet.userId === 1);
+      console.log(mockYourBets);
       // Supposons que l'ID utilisateur actuel est 1
     };
     loadData();
   }, []);
-
-  // Mock Predictions for Bets
-  const mockBets: Prediction[] = [
-    {
-      id: 1,
-      userId: 1,
-      matchId: 101,
-      groupId: 1,
-      match: {
-        id: 101,
-        competitionId: 1,
-        homeTeamId: 1,
-        awayTeamId: 2,
-        homeTeam: { id: 1, competitionId: 1, name: "Team A", createdAt: new Date().toISOString() },
-        awayTeam: { id: 2, competitionId: 1, name: "Team B", createdAt: new Date().toISOString() },
-        scheduledDate: "2025-11-01T20:00:00.000Z",
-        status: "finished",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      } as Match,
-      user: group?.owner,
-      homeScorePrediction: 2,
-      awayScorePrediction: 1,
-      pointsEarned: 3,
-      predictedAt: new Date().toISOString(),
-    },
-    {
-      id: 2,
-      userId: 1,
-      matchId: 102,
-      groupId: 1,
-      match: {
-        id: 102,
-        competitionId: 1,
-        homeTeamId: 3,
-        awayTeamId: 4,
-        homeTeam: { id: 3, competitionId: 1, name: "Team C", createdAt: new Date().toISOString() },
-        awayTeam: { id: 4, competitionId: 1, name: "Team D", createdAt: new Date().toISOString() },
-        scheduledDate: "2025-11-02T18:30:00.000Z",
-        status: "scheduled",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      } as Match,
-      user: group?.owner,
-      homeScorePrediction: 1,
-      awayScorePrediction: 1,
-      pointsEarned: null,
-      predictedAt: new Date().toISOString(),
-    },
-  ];
 
   return (
     <div className="max-w-5xl mx-auto p-6 flex flex-col gap-8">
@@ -163,8 +114,8 @@ export default function GroupPage() {
       </div>
 
       {/* Tables */}
-      <BetListTable isParticipating={isParticipating} predictions={mockBets} />
-      <YourBetTable bets={mockBets} isParticipating={isParticipating} />
+      <BetListTable isParticipating={isParticipating} predictions={bets} />
+      <YourBetTable bets={bets} isParticipating={isParticipating} />
 
       {/* Rankings */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">

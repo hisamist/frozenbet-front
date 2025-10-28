@@ -4,7 +4,7 @@ import ModalComponent from "@/components/ModalComponent";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import { AuthModal } from "./AuthModal";
-
+import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 // ==================== CreateGroupModal.tsx ====================
 interface CreateGroupModalProps {
   isLoggedIn: boolean;
@@ -16,7 +16,8 @@ export default function CreateGroupModal({ isLoggedIn }: CreateGroupModalProps) 
   const [step, setStep] = useState(1);
 
   const [groupName, setGroupName] = useState("");
-  const [gameType, setGameType] = useState("");
+  const [gameDescription, setGameDescription] = useState("");
+  const [visibility, setVisibility] = useState<"public" | "private">("public");
   const [ruleName, setRuleName] = useState("");
   const [rulePoints, setRulePoints] = useState<number | "">("");
 
@@ -29,7 +30,7 @@ export default function CreateGroupModal({ isLoggedIn }: CreateGroupModalProps) 
   };
 
   const handleNext = () => {
-    if (!groupName || !gameType) {
+    if (!groupName) {
       alert("Veuillez remplir le nom du groupe et le type du jeu");
       return;
     }
@@ -43,7 +44,7 @@ export default function CreateGroupModal({ isLoggedIn }: CreateGroupModalProps) 
     }
     alert(`Groupe créé : ${groupName}\nRègle ajoutée : ${ruleName} (${rulePoints} pts)`);
     setGroupName("");
-    setGameType("");
+    setGameDescription("");
     setRuleName("");
     setRulePoints("");
     setStep(1);
@@ -82,12 +83,27 @@ export default function CreateGroupModal({ isLoggedIn }: CreateGroupModalProps) 
             />
             <TextField
               fullWidth
-              label="Type du jeu"
+              label="Description (optionnel)"
               variant="outlined"
               margin="normal"
-              value={gameType}
-              onChange={(e) => setGameType(e.target.value)}
+              multiline
+              rows={4} // hauteur de 4 lignes
+              value={gameDescription}
+              onChange={(e) => setGameDescription(e.target.value)}
             />
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="visibility-label">Visibilité</InputLabel>
+              <Select
+                labelId="visibility-label"
+                value={visibility}
+                label="Visibilité"
+                onChange={(e) => setVisibility(e.target.value as "public" | "private")}
+              >
+                <MenuItem value="public">Public</MenuItem>
+                <MenuItem value="private">Privé</MenuItem>
+              </Select>
+            </FormControl>
+
             <Button variant="contained" color="primary" fullWidth onClick={handleNext}>
               Suivant
             </Button>
