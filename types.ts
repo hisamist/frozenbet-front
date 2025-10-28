@@ -83,13 +83,19 @@ export interface Group {
 // =========================
 // Group Scoring Rules
 // =========================
+type RuleType =
+  | "EXACT_SCORE"
+  | "CORRECT_WINNER"
+  | "CORRECT_DRAW"
+  | "GOAL_DIFFERENCE"
+  | "BOTH_TEAMS_SCORE";
 export interface GroupScoringRule {
   id: number;
   groupId: number;
   ruleDescription?: string | null;
   points: number;
   createdAt: string;
-
+  ruleType: RuleType;
   group?: Group;
 }
 

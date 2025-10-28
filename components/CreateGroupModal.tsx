@@ -13,6 +13,13 @@ interface CreateGroupModalProps {
   isLoggedIn: boolean;
 }
 
+type RuleType =
+  | "EXACT_SCORE"
+  | "CORRECT_WINNER"
+  | "CORRECT_DRAW"
+  | "GOAL_DIFFERENCE"
+  | "BOTH_TEAMS_SCORE";
+
 export default function CreateGroupModal({ isLoggedIn }: CreateGroupModalProps) {
   const [openGroupModal, setOpenGroupModal] = useState(false);
   const [openAuthModal, setOpenAuthModal] = useState(false);
@@ -26,6 +33,7 @@ export default function CreateGroupModal({ isLoggedIn }: CreateGroupModalProps) 
   const [ruleName, setRuleName] = useState("");
   const [ruleDescription, setRuleDescription] = useState("");
   const [rulePoints, setRulePoints] = useState<number | "">("");
+  const [ruleType, setRuleType] = useState<RuleType>("EXACT_SCORE"); // Nouveau champ
 
   const [errors, setErrors] = useState({
     groupName: "",
@@ -33,6 +41,7 @@ export default function CreateGroupModal({ isLoggedIn }: CreateGroupModalProps) 
     selectedCompetitionId: "",
     ruleName: "",
     rulePoints: "",
+    ruleType: "",
   });
 
   const [createdGroupId, setCreatedGroupId] = useState<number | null>(null);
@@ -45,7 +54,6 @@ export default function CreateGroupModal({ isLoggedIn }: CreateGroupModalProps) 
     setOpenGroupModal(true);
   };
 
-  // STEP 1: Créer le groupe
   const handleStep1Submit = async () => {
     const newErrors = {
       groupName: groupName ? "" : "Le nom du groupe est requis",
@@ -53,9 +61,9 @@ export default function CreateGroupModal({ isLoggedIn }: CreateGroupModalProps) 
       selectedCompetitionId: selectedCompetitionId ? "" : "Veuillez choisir une compétition",
       ruleName: "",
       rulePoints: "",
+      ruleType: "",
     };
     setErrors(newErrors);
-
     if (!groupName || !gameDescription || !selectedCompetitionId) return;
 
     try {
@@ -66,21 +74,17 @@ export default function CreateGroupModal({ isLoggedIn }: CreateGroupModalProps) 
         visibility,
       };
       const res = await createGroup(payload);
-
-      console.log("Groupe créé ✅", res);
       if (!res?.data.id) {
         alert("Erreur : l'ID du groupe créé est introuvable !");
         return;
       }
-
       setCreatedGroupId(res.data.id);
-      setStep(2); // passe automatiquement à Step 2
+      setStep(2);
     } catch (err: any) {
       alert("Erreur lors de la création du groupe : " + err.message);
     }
   };
 
-  // STEP 2: Créer la règle
   const handleFinish = async () => {
     const newErrors = {
       groupName: "",
@@ -88,6 +92,7 @@ export default function CreateGroupModal({ isLoggedIn }: CreateGroupModalProps) 
       selectedCompetitionId: "",
       ruleName: ruleName ? "" : "Le nom de la règle est requis",
       rulePoints: rulePoints !== "" ? "" : "Les points sont requis",
+      ruleType: ruleType ? "" : "Le type de règle est requis",
     };
     setErrors(newErrors);
 
@@ -96,25 +101,25 @@ export default function CreateGroupModal({ isLoggedIn }: CreateGroupModalProps) 
     try {
       await createRuleByGroupId({
         groupId: createdGroupId,
-        name: ruleName,
         description: ruleDescription,
         points: rulePoints as number,
+        type: ruleType, // Nouveau champ envoyé à l’API
       });
 
-      console.log("Règle créée ✅", { ruleName, ruleDescription, rulePoints });
-      alert(`Règle ajoutée : ${ruleName} (${rulePoints} pts)`);
+      alert(`Règle ajoutée : ${ruleName} (${rulePoints} pts, type: ${ruleType})`);
     } catch (err: any) {
       alert("Erreur lors de la création de la règle : " + err.message);
       return;
     }
 
-    // RESET COMPLET
+    // Reset complet
     setGroupName("");
     setGameDescription("");
     setSelectedCompetitionId("");
     setRuleName("");
     setRuleDescription("");
     setRulePoints("");
+    setRuleType("EXACT_SCORE");
     setCreatedGroupId(null);
     setStep(1);
     setOpenGroupModal(false);
@@ -124,6 +129,7 @@ export default function CreateGroupModal({ isLoggedIn }: CreateGroupModalProps) 
       selectedCompetitionId: "",
       ruleName: "",
       rulePoints: "",
+      ruleType: "",
     });
   };
 
@@ -203,16 +209,6 @@ export default function CreateGroupModal({ isLoggedIn }: CreateGroupModalProps) 
           <>
             <TextField
               fullWidth
-              label="Nom de la règle"
-              variant="outlined"
-              margin="normal"
-              value={ruleName}
-              onChange={(e) => setRuleName(e.target.value)}
-              error={!!errors.ruleName}
-              helperText={errors.ruleName}
-            />
-            <TextField
-              fullWidth
               label="Description de la règle (optionnel)"
               variant="outlined"
               margin="normal"
@@ -232,6 +228,23 @@ export default function CreateGroupModal({ isLoggedIn }: CreateGroupModalProps) 
               error={!!errors.rulePoints}
               helperText={errors.rulePoints}
             />
+
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="rule-type-label">Type de pari</InputLabel>
+              <Select
+                labelId="rule-type-label"
+                value={ruleType}
+                label="Type de pari"
+                onChange={(e) => setRuleType(e.target.value as RuleType)}
+              >
+                <MenuItem value="EXACT_SCORE">Exact Score</MenuItem>
+                <MenuItem value="CORRECT_WINNER">Correct Winner</MenuItem>
+                <MenuItem value="CORRECT_DRAW">Correct Draw</MenuItem>
+                <MenuItem value="GOAL_DIFFERENCE">Goal Difference</MenuItem>
+                <MenuItem value="BOTH_TEAMS_SCORE">Both Teams Score</MenuItem>
+              </Select>
+            </FormControl>
+
             <Button
               variant="contained"
               color="secondary"

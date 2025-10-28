@@ -119,17 +119,18 @@ export const getGroups = async () => {
 
 export const createRuleByGroupId = async (payload: {
   groupId: number;
-  name: string;
   description?: string;
   points: number;
+  type: "EXACT_SCORE" | "CORRECT_WINNER" | "CORRECT_DRAW" | "GOAL_DIFFERENCE" | "BOTH_TEAMS_SCORE";
 }) => {
   try {
+    console.log("Creating rule with payload;", payload);
     const res = await api.post(
       `/groups/${payload.groupId}/rules`,
       {
-        name: payload.name,
         description: payload.description,
         points: payload.points,
+        ruleType: payload.type,
       },
       { headers: authHeaders() }
     );
@@ -161,7 +162,7 @@ export const makePrediction = async (payload: {
 // --------------------
 export const getCompetitions = async () => {
   try {
-    const res = await api.get("/competitions");
+    const res = await api.get("/competitions", { headers: authHeaders() });
     return res.data;
   } catch (err) {
     throw new Error(handleError(err));
@@ -188,6 +189,7 @@ export const getBets = async (groupId?: number, matchId?: number) => {
         ...(groupId ? { groupId } : {}),
         ...(matchId ? { matchId } : {}),
       },
+      headers: authHeaders(),
     });
     return normalizeList(res.data);
   } catch (err) {
@@ -201,6 +203,7 @@ export const getBetsByGroupId = async (groupId?: number) => {
       params: {
         ...(groupId ? { groupId } : {}),
       },
+      headers: authHeaders(), // <-- include token
     });
     return normalizeList(res.data);
   } catch (err) {
@@ -215,6 +218,7 @@ export const getYourBets = async (userId: number, groupId?: number) => {
         userId,
         ...(groupId ? { groupId } : {}),
       },
+      headers: authHeaders(), // <-- include token
     });
     return normalizeList(res.data);
   } catch (err) {
@@ -223,7 +227,11 @@ export const getYourBets = async (userId: number, groupId?: number) => {
 };
 
 export const getMatchesByCompetitionId = async (competitionId: number) => {
-  // Use configured API base URL instead of Next.js local API route
-  const response = await api.get(`/competitions/${competitionId}/matches`);
-  return response;
+  try {
+    // Use configured API base URL instead of Next.js local API route
+    const res = await api.get(`/competitions/${competitionId}/matches`);
+    return normalizeList(res.data);
+  } catch (err) {
+    throw new Error(handleError(err));
+  }
 };

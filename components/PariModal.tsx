@@ -7,34 +7,27 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useState } from "react";
 
+export interface PredictionInput {
+  userId: number;
+  matchId: number;
+  groupId?: number;
+  homeScorePrediction: number;
+  awayScorePrediction: number;
+  predictedAt: string;
+  pointsEarned?: number;
+  isLocked: boolean;
+}
+
 interface PariModalProps {
   open: boolean;
   onClose: () => void;
   matchId: number;
   groupId?: number;
-  userId?: number;
+  userId: number;
   onSubmit: (prediction: PredictionInput) => void;
 }
 
-interface PredictionInput {
-  user_id: number;
-  match_id: number;
-  group_id?: number;
-  home_score_prediction: number;
-  away_score_prediction: number;
-  predicted_at: string;
-  points_earned?: number;
-  is_locked: boolean;
-}
-
-export function PariModal({
-  open,
-  onClose,
-  matchId,
-  groupId,
-  userId = 0,
-  onSubmit,
-}: PariModalProps) {
+export function PariModal({ open, onClose, matchId, groupId, userId, onSubmit }: PariModalProps) {
   const [homeScore, setHomeScore] = useState<number | "">("");
   const [awayScore, setAwayScore] = useState<number | "">("");
   const [isLocked, setIsLocked] = useState(false);
@@ -46,16 +39,17 @@ export function PariModal({
     }
 
     const prediction: PredictionInput = {
-      user_id: userId,
-      match_id: matchId,
-      group_id: groupId,
-      home_score_prediction: Number(homeScore),
-      away_score_prediction: Number(awayScore),
-      predicted_at: new Date().toISOString(),
-      is_locked: isLocked,
+      userId,
+      matchId,
+      groupId,
+      homeScorePrediction: Number(homeScore),
+      awayScorePrediction: Number(awayScore),
+      predictedAt: new Date().toISOString(),
+      isLocked,
     };
 
     onSubmit(prediction);
+
     setHomeScore("");
     setAwayScore("");
     setIsLocked(false);

@@ -64,6 +64,7 @@ export const mockGroups: GroupFull[] = [
         ruleDescription: "Exact Score",
         points: 5,
         createdAt: new Date().toISOString(),
+        ruleType: "EXACT_SCORE",
       },
       {
         id: 2,
@@ -71,6 +72,7 @@ export const mockGroups: GroupFull[] = [
         ruleDescription: "Correct Winner",
         points: 2,
         createdAt: new Date().toISOString(),
+        ruleType: "EXACT_SCORE",
       },
     ],
     rankings: [
@@ -157,6 +159,7 @@ export const mockGroups: GroupFull[] = [
         ruleDescription: "Score exact",
         points: 5,
         createdAt: new Date().toISOString(),
+        ruleType: "EXACT_SCORE",
       },
       {
         id: 4,
@@ -164,6 +167,7 @@ export const mockGroups: GroupFull[] = [
         ruleDescription: "Bonne équipe gagnante",
         points: 3,
         createdAt: new Date().toISOString(),
+        ruleType: "EXACT_SCORE",
       },
     ],
     rankings: [
@@ -256,6 +260,7 @@ export const mockGroups: GroupFull[] = [
         ruleDescription: "Score exact",
         points: 4,
         createdAt: new Date().toISOString(),
+        ruleType: "EXACT_SCORE",
       },
       {
         id: 6,
@@ -263,6 +268,7 @@ export const mockGroups: GroupFull[] = [
         ruleDescription: "Bonne équipe gagnante",
         points: 2,
         createdAt: new Date().toISOString(),
+        ruleType: "EXACT_SCORE",
       },
     ],
     rankings: [
@@ -355,6 +361,7 @@ export const mockGroups: GroupFull[] = [
         ruleDescription: "Score exact",
         points: 5,
         createdAt: new Date().toISOString(),
+        ruleType: "EXACT_SCORE",
       },
       {
         id: 8,
@@ -362,6 +369,7 @@ export const mockGroups: GroupFull[] = [
         ruleDescription: "Bon vainqueur",
         points: 3,
         createdAt: new Date().toISOString(),
+        ruleType: "EXACT_SCORE",
       },
     ],
     rankings: [
@@ -454,6 +462,7 @@ export const mockGroups: GroupFull[] = [
         ruleDescription: "Score exact",
         points: 5,
         createdAt: new Date().toISOString(),
+        ruleType: "BOTH_TEAMS_SCORE",
       },
     ],
     rankings: [
@@ -546,6 +555,7 @@ export const mockGroups: GroupFull[] = [
         ruleDescription: "Correct score",
         points: 4,
         createdAt: new Date().toISOString(),
+        ruleType: "CORRECT_DRAW",
       },
       {
         id: 11,
@@ -553,6 +563,7 @@ export const mockGroups: GroupFull[] = [
         ruleDescription: "Winner",
         points: 2,
         createdAt: new Date().toISOString(),
+        ruleType: "CORRECT_WINNER",
       },
     ],
     rankings: [
@@ -645,6 +656,7 @@ export const mockGroups: GroupFull[] = [
         ruleDescription: "Score exact",
         points: 5,
         createdAt: new Date().toISOString(),
+        ruleType: "CORRECT_DRAW",
       },
       {
         id: 13,
@@ -652,6 +664,7 @@ export const mockGroups: GroupFull[] = [
         ruleDescription: "Bon vainqueur",
         points: 3,
         createdAt: new Date().toISOString(),
+        ruleType: "CORRECT_DRAW",
       },
     ],
     rankings: [
@@ -738,13 +751,7 @@ export const mockGroups: GroupFull[] = [
         ruleDescription: "Score exact",
         points: 5,
         createdAt: new Date().toISOString(),
-      },
-      {
-        id: 15,
-        groupId: 8,
-        ruleDescription: "Vainqueur correct",
-        points: 2,
-        createdAt: new Date().toISOString(),
+        ruleType: "CORRECT_DRAW",
       },
     ],
     rankings: [
