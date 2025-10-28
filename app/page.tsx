@@ -6,13 +6,14 @@ import GroupCard from "@/components/GroupCard";
 import { Group } from "@/types";
 import { MockAPIService } from "@/services/MockAPIService";
 import Loading from "@/components/Loading";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Home() {
+  const { isAuthenticated } = useAuth(); // ✅ Hook pour savoir si user connecté
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch mock groups from service
     const fetchGroups = async () => {
       try {
         const data = await MockAPIService.getGroups();
@@ -40,7 +41,8 @@ export default function Home() {
           <p className="text-lg text-gray-700 dark:text-gray-300 mb-6">
             Contenu principal de la page d’accueil.
           </p>
-          <CreateGroupModal isLoggedIn={false} />
+          {/* Passer l’état de l’utilisateur */}
+          <CreateGroupModal isLoggedIn={isAuthenticated} />
         </div>
       </div>
 
