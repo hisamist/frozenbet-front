@@ -6,8 +6,8 @@ import TextField from "@mui/material/TextField";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
+import { useAuth } from "@/context/AuthContext"; // hook AuthProvider
 
-// ==================== AuthModal.tsx ====================
 interface AuthModalProps {
   open: boolean;
   onClose: () => void;
@@ -20,26 +20,42 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
 
-  const handleAuthSubmit = () => {
-    if (authTab === 0) {
-      if (!email || !password) {
-        alert("Veuillez remplir email et mot de passe");
-        return;
+  const { login, register } = useAuth(); // fonctions depuis AuthProvider
+  const [loading, setLoading] = useState(false);
+
+  const handleAuthSubmit = async () => {
+    setLoading(true);
+    try {
+      if (authTab === 0) {
+        // Login
+        if (!email || !password) {
+          alert("Veuillez remplir email et mot de passe");
+          setLoading(false);
+          return;
+        }
+        await login(email, password);
+      } else {
+        // Register
+        if (!username || !email || !password) {
+          alert("Veuillez remplir tous les champs pour l'inscription");
+          setLoading(false);
+          return;
+        }
+        await register({ username, email, password });
       }
-      alert(`Connecté avec ${email}`);
-    } else {
-      if (!username || !email || !password) {
-        alert("Veuillez remplir tous les champs pour l'inscription");
-        return;
-      }
-      alert(`Compte créé pour ${username}`);
+
+      // Reset inputs
+      setEmail("");
+      setPassword("");
+      setUsername("");
+
+      onClose();
+      onSuccess();
+    } catch (err: any) {
+      alert(err.message || "Erreur inconnue");
+    } finally {
+      setLoading(false);
     }
-    // Reset
-    setEmail("");
-    setPassword("");
-    setUsername("");
-    onClose();
-    onSuccess();
   };
 
   return (
@@ -104,8 +120,9 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
           fullWidth
           sx={{ mt: 2 }}
           onClick={handleAuthSubmit}
+          disabled={loading}
         >
-          {authTab === 0 ? "Se connecter" : "S'inscrire"}
+          {loading ? "Veuillez patienter..." : authTab === 0 ? "Se connecter" : "S'inscrire"}
         </Button>
       </Box>
     </ModalComponent>
