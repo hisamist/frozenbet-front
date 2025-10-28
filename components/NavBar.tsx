@@ -69,13 +69,13 @@ export default function Navbar({ onLoginClick, notifications = [] }: NavbarProps
             </Typography>
           </Link>
 
-          {!isAuthenticated ? (
-            <Box sx={{ display: "flex", gap: 2, mr: 2 }}>
-              <Button color="inherit" onClick={handleAuthClick}>
-                {user ? "Logout" : "Login"}
-              </Button>
-            </Box>
-          ) : (
+          <Box sx={{ display: "flex", gap: 2, mr: 2 }}>
+            <Button color="inherit" onClick={handleAuthClick}>
+              {user ? "Logout" : "Login"}
+            </Button>
+          </Box>
+
+          {isAuthenticated ? (
             <>
               <IconButton color="inherit" onClick={handleNotificationsClick}>
                 <Badge badgeContent={notifications.length} color="error">
@@ -87,7 +87,7 @@ export default function Navbar({ onLoginClick, notifications = [] }: NavbarProps
                 <AccountCircleIcon />
               </IconButton>
             </>
-          )}
+          ) : null}
         </Toolbar>
       </AppBar>
 
