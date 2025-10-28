@@ -1,3 +1,4 @@
+import { GroupStatistics } from "@/types";
 import axios, { AxiosError } from "axios";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
@@ -231,6 +232,19 @@ export const getMatchesByCompetitionId = async (competitionId: number) => {
     // Use configured API base URL instead of Next.js local API route
     const res = await api.get(`/competitions/${competitionId}/matches`);
     return normalizeList(res.data);
+  } catch (err) {
+    throw new Error(handleError(err));
+  }
+};
+
+export const getStatisticsByGroupId = async (groupId: number) => {
+  try {
+    // Note: the path should be /statistics/groups/{id}, not /statistics/groups
+    const res = await api.get(`/statistics/groups/${groupId}`, {
+      headers: authHeaders(), // token for protected route
+    });
+    // No need to normalize since the response could be empty
+    return res.data.data;
   } catch (err) {
     throw new Error(handleError(err));
   }

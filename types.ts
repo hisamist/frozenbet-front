@@ -190,3 +190,31 @@ export interface Notification {
   resultId: number;
   message: string;
 }
+
+export interface TopPerformer {
+  userId: number;
+  username: string;
+  rank: number;
+  totalPoints: number;
+  correctPredictions: number;
+  totalPredictions: number;
+}
+
+export interface RecentActivity {
+  predictionId: number;
+  userId: number;
+  username: string;
+  match: string;
+  prediction: string;
+  pointsEarned: number | null;
+  predictedAt: Date;
+}
+
+export interface GroupStatistics {
+  groupId: number;
+  groupName: string;
+  totalMembers: number;
+  totalPredictions: number;
+  topPerformers: TopPerformer[];
+  recentActivity: RecentActivity[];
+}

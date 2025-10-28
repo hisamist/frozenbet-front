@@ -2,6 +2,7 @@
 
 import { getIconColorById } from "@/colors";
 import MatchesTable from "@/components/MatchTable";
+import RankingTable from "@/components/RankingTable";
 import YourBetTable from "@/components/YourBetTable";
 import { getGroupById, getBetsByGroupId } from "@/services/APIService";
 import { GroupFull, Prediction } from "@/types";
@@ -118,24 +119,7 @@ export default function GroupPage() {
       {/* Rankings */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
         <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Classement</h2>
-        <table className="min-w-full text-left text-gray-900 dark:text-white">
-          <thead>
-            <tr>
-              <th className="px-2 py-1">Rang</th>
-              <th className="px-2 py-1">Utilisateur</th>
-              <th className="px-2 py-1">Points</th>
-            </tr>
-          </thead>
-          <tbody>
-            {group?.rankings?.map((r) => (
-              <tr key={r.userId} className="border-t border-gray-200 dark:border-gray-700">
-                <td className="px-2 py-1">{r.rank}</td>
-                <td className="px-2 py-1">{r.user?.username ?? "Unknown"}</td>
-                <td className="px-2 py-1">{r.totalPoints}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <RankingTable groupId={Number(groupId)} />
       </div>
     </div>
   );
