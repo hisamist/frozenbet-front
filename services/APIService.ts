@@ -1,4 +1,5 @@
 import axios, { AxiosError } from "axios";
+import { GroupInvitation, Notification } from "@/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
@@ -182,6 +183,39 @@ export const getGroupById = async (groupId: number) => {
   }
 };
 
+export const getGroupMembers = async (groupId: number, page?: number, limit?: number) => {
+  try {
+    const res = await api.get(`/groups/${groupId}/members`, {
+      params: {
+        ...(page !== undefined ? { page } : {}),
+        ...(limit !== undefined ? { limit } : {}),
+      },
+    });
+    return normalizeList(res.data);
+  } catch (err) {
+    throw new Error(handleError(err));
+  }
+};
+
+export const joinGroup = async (groupId: number, inviteCode?: string) => {
+  try {
+    const payload = inviteCode ? { inviteCode } : {};
+    const res = await api.post(`/groups/${groupId}/join`, payload, { headers: authHeaders() });
+    return res.data;
+  } catch (err) {
+    throw new Error(handleError(err));
+  }
+};
+
+export const leaveGroup = async (groupId: number) => {
+  try {
+    const res = await api.post(`/groups/${groupId}/leave`, {}, { headers: authHeaders() });
+    return res.data;
+  } catch (err) {
+    throw new Error(handleError(err));
+  }
+};
+
 export const getBets = async (groupId?: number, matchId?: number) => {
   try {
     const res = await api.get("/predictions", {
@@ -305,6 +339,51 @@ export const deleteInvitation = async (id: number) => {
   try {
     const res = await api.delete(`/invitations/${id}`, { headers: authHeaders() });
     return res.data;
+  } catch (err) {
+    throw new Error(handleError(err));
+  }
+};
+
+// --------------------
+// Notification utilities
+// --------------------
+// Convert invitations to notifications
+export const convertInvitationToNotification = (invitation: GroupInvitation): Notification => {
+  return {
+    id: invitation.id,
+    type: "invitation",
+    title: "Invitation à rejoindre un groupe",
+    message: `${invitation.inviter?.username || "Quelqu'un"} vous invite à rejoindre le groupe "${invitation.group?.name || "un groupe"}"`,
+    isRead: invitation.status !== "pending",
+    createdAt: invitation.createdAt,
+    invitationToken: invitation.token,
+    invitationId: invitation.id,
+    groupId: invitation.groupId,
+    groupName: invitation.group?.name,
+    inviterUsername: invitation.inviter?.username,
+  };
+};
+
+// Get all notifications (invitations converted to notifications)
+export const getAllNotifications = async (): Promise<Notification[]> => {
+  try {
+    const invitations = await getReceivedInvitations();
+    const notifications = invitations.map(convertInvitationToNotification);
+    // Sort by date, most recent first
+    return notifications.sort(
+      (a: Notification, b: Notification) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  } catch (err) {
+    throw new Error(handleError(err));
+  }
+};
+
+// Get unread notifications count
+export const getUnreadNotificationsCount = async (): Promise<number> => {
+  try {
+    const notifications = await getAllNotifications();
+    return notifications.filter((n) => !n.isRead).length;
   } catch (err) {
     throw new Error(handleError(err));
   }

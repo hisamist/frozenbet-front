@@ -186,9 +186,24 @@ export interface MatchWithPredictions extends Match {
   predictions?: Prediction[];
 }
 
+// Notification System
+export type NotificationType = "invitation" | "match_result" | "group_update" | "general";
+
 export interface Notification {
-  resultId: number;
+  id: number;
+  type: NotificationType;
+  title: string;
   message: string;
+  isRead: boolean;
+  createdAt: string;
+  // Optional fields based on type
+  invitationToken?: string; // for invitation type
+  invitationId?: number; // for invitation type
+  groupId?: number; // for invitation or group_update type
+  groupName?: string; // for invitation or group_update type
+  inviterUsername?: string; // for invitation type
+  resultId?: number; // for match_result type
+  link?: string; // optional link to navigate to
 }
 
 export interface TopPerformer {

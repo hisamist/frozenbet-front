@@ -3,8 +3,10 @@
 import ModalComponent from "@/components/ModalComponent";
 import { createGroup, createRuleByGroupId } from "@/services/APIService";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 import { useState } from "react";
 import { AuthModal } from "./AuthModal";
 import CompetitionSelect from "./CompetitionSelect";
@@ -151,111 +153,118 @@ export default function CreateGroupModal({ isLoggedIn }: CreateGroupModalProps) 
           setOpenGroupModal(false);
           setStep(1);
         }}
-        title={step === 1 ? "Créer un groupe" : "Ajouter des règles"}
       >
-        {step === 1 ? (
-          <>
-            <TextField
-              fullWidth
-              label="Nom du groupe"
-              variant="outlined"
-              margin="normal"
-              value={groupName}
-              onChange={(e) => setGroupName(e.target.value)}
-              error={!!errors.groupName}
-              helperText={errors.groupName}
-            />
-            <TextField
-              fullWidth
-              label="Description"
-              variant="outlined"
-              margin="normal"
-              multiline
-              rows={3}
-              value={gameDescription}
-              onChange={(e) => setGameDescription(e.target.value)}
-              error={!!errors.gameDescription}
-              helperText={errors.gameDescription}
-            />
-            <FormControl fullWidth margin="normal">
-              <InputLabel id="visibility-label">Visibilité</InputLabel>
-              <Select
-                labelId="visibility-label"
-                value={visibility}
-                label="Visibilité"
-                onChange={(e) => setVisibility(e.target.value as "public" | "private")}
+        <Box sx={{ p: 4, bgcolor: "background.paper" }}>
+          <Typography variant="h5" sx={{ mb: 3, color: "text.primary" }}>
+            {step === 1 ? "Créer un groupe" : "Ajouter des règles"}
+          </Typography>
+          {step === 1 ? (
+            <>
+              <TextField
+                fullWidth
+                label="Nom du groupe"
+                variant="outlined"
+                margin="normal"
+                value={groupName}
+                onChange={(e) => setGroupName(e.target.value)}
+                error={!!errors.groupName}
+                helperText={errors.groupName}
+              />
+              <TextField
+                fullWidth
+                label="Description"
+                variant="outlined"
+                margin="normal"
+                multiline
+                rows={3}
+                value={gameDescription}
+                onChange={(e) => setGameDescription(e.target.value)}
+                error={!!errors.gameDescription}
+                helperText={errors.gameDescription}
+              />
+              <FormControl fullWidth margin="normal">
+                <InputLabel id="visibility-label">Visibilité</InputLabel>
+                <Select
+                  labelId="visibility-label"
+                  value={visibility}
+                  label="Visibilité"
+                  onChange={(e) => setVisibility(e.target.value as "public" | "private")}
+                >
+                  <MenuItem value="public">Public</MenuItem>
+                  <MenuItem value="private">Privé</MenuItem>
+                </Select>
+              </FormControl>
+
+              <CompetitionSelect
+                value={selectedCompetitionId}
+                onChange={setSelectedCompetitionId}
+              />
+              {errors.selectedCompetitionId && (
+                <p style={{ color: "red", fontSize: "0.8rem" }}>{errors.selectedCompetitionId}</p>
+              )}
+
+              <Button
+                variant="contained"
+                color="primary"
+                fullWidth
+                onClick={handleStep1Submit}
+                sx={{ mt: 2 }}
               >
-                <MenuItem value="public">Public</MenuItem>
-                <MenuItem value="private">Privé</MenuItem>
-              </Select>
-            </FormControl>
+                Créer le groupe
+              </Button>
+            </>
+          ) : (
+            <>
+              <TextField
+                fullWidth
+                label="Description de la règle (optionnel)"
+                variant="outlined"
+                margin="normal"
+                multiline
+                rows={2}
+                value={ruleDescription}
+                onChange={(e) => setRuleDescription(e.target.value)}
+              />
+              <TextField
+                fullWidth
+                label="Points attribués"
+                variant="outlined"
+                margin="normal"
+                type="number"
+                value={rulePoints}
+                onChange={(e) => setRulePoints(Number(e.target.value))}
+                error={!!errors.rulePoints}
+                helperText={errors.rulePoints}
+              />
 
-            <CompetitionSelect value={selectedCompetitionId} onChange={setSelectedCompetitionId} />
-            {errors.selectedCompetitionId && (
-              <p style={{ color: "red", fontSize: "0.8rem" }}>{errors.selectedCompetitionId}</p>
-            )}
+              <FormControl fullWidth margin="normal">
+                <InputLabel id="rule-type-label">Type de pari</InputLabel>
+                <Select
+                  labelId="rule-type-label"
+                  value={ruleType}
+                  label="Type de pari"
+                  onChange={(e) => setRuleType(e.target.value as RuleType)}
+                >
+                  <MenuItem value="EXACT_SCORE">Exact Score</MenuItem>
+                  <MenuItem value="CORRECT_WINNER">Correct Winner</MenuItem>
+                  <MenuItem value="CORRECT_DRAW">Correct Draw</MenuItem>
+                  <MenuItem value="GOAL_DIFFERENCE">Goal Difference</MenuItem>
+                  <MenuItem value="BOTH_TEAMS_SCORE">Both Teams Score</MenuItem>
+                </Select>
+              </FormControl>
 
-            <Button
-              variant="contained"
-              color="primary"
-              fullWidth
-              onClick={handleStep1Submit}
-              sx={{ mt: 2 }}
-            >
-              Créer le groupe
-            </Button>
-          </>
-        ) : (
-          <>
-            <TextField
-              fullWidth
-              label="Description de la règle (optionnel)"
-              variant="outlined"
-              margin="normal"
-              multiline
-              rows={2}
-              value={ruleDescription}
-              onChange={(e) => setRuleDescription(e.target.value)}
-            />
-            <TextField
-              fullWidth
-              label="Points attribués"
-              variant="outlined"
-              margin="normal"
-              type="number"
-              value={rulePoints}
-              onChange={(e) => setRulePoints(Number(e.target.value))}
-              error={!!errors.rulePoints}
-              helperText={errors.rulePoints}
-            />
-
-            <FormControl fullWidth margin="normal">
-              <InputLabel id="rule-type-label">Type de pari</InputLabel>
-              <Select
-                labelId="rule-type-label"
-                value={ruleType}
-                label="Type de pari"
-                onChange={(e) => setRuleType(e.target.value as RuleType)}
+              <Button
+                variant="contained"
+                color="secondary"
+                fullWidth
+                onClick={handleFinish}
+                sx={{ mt: 2 }}
               >
-                <MenuItem value="EXACT_SCORE">Exact Score</MenuItem>
-                <MenuItem value="CORRECT_WINNER">Correct Winner</MenuItem>
-                <MenuItem value="CORRECT_DRAW">Correct Draw</MenuItem>
-                <MenuItem value="GOAL_DIFFERENCE">Goal Difference</MenuItem>
-                <MenuItem value="BOTH_TEAMS_SCORE">Both Teams Score</MenuItem>
-              </Select>
-            </FormControl>
-
-            <Button
-              variant="contained"
-              color="secondary"
-              fullWidth
-              onClick={handleFinish}
-              sx={{ mt: 2 }}
-            >
-              Terminer
-            </Button>
-          </>
-        )}
+                Terminer
+              </Button>
+            </>
+          )}
+        </Box>
       </ModalComponent>
     </>
   );

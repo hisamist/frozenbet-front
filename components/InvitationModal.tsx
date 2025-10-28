@@ -57,9 +57,9 @@ export function InvitationModal({ open, onClose, groupId, groupName }: Invitatio
   };
 
   return (
-    <ModalComponent open={open} onClose={handleClose} title="Invitation modal">
-      <Box sx={{ p: 4 }}>
-        <Typography variant="h5" sx={{ mb: 2 }}>
+    <ModalComponent open={open} onClose={handleClose}>
+      <Box sx={{ p: 4, bgcolor: "background.paper" }}>
+        <Typography variant="h5" sx={{ mb: 2, color: "text.primary" }}>
           Inviter un membre
         </Typography>
         <Typography variant="body2" sx={{ mb: 3, color: "text.secondary" }}>

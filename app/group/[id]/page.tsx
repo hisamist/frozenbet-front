@@ -6,7 +6,14 @@ import MatchesTable from "@/components/MatchTable";
 import RankingTable from "@/components/RankingTable";
 import YourBetTable from "@/components/YourBetTable";
 import { useAuth } from "@/context/AuthContext";
-import { getGroupById, getBetsByGroupId, getYourBets } from "@/services/APIService";
+import {
+  getBetsByGroupId,
+  getGroupById,
+  getGroupMembers,
+  getYourBets,
+  joinGroup,
+  leaveGroup,
+} from "@/services/APIService";
 import { GroupFull, Prediction } from "@/types";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import PersonIcon from "@mui/icons-material/Person";
@@ -25,6 +32,7 @@ export default function GroupPage() {
   const iconColor = getIconColorById(Number(groupId));
   // Mock group data
   const [group, setGroup] = useState<GroupFull | null>(null);
+  const [members, setMembers] = useState<any[]>([]);
   const [bets, setBets] = useState<Prediction[]>([]);
   const [yourBets, setYourBets] = useState<Prediction[]>([]);
   const [invitationModalOpen, setInvitationModalOpen] = useState(false);
@@ -34,6 +42,16 @@ export default function GroupPage() {
     const loadData = async () => {
       const apiGroup = await getGroupById(Number(groupId));
       setGroup(apiGroup as GroupFull);
+
+      // Fetch members separately using the API
+      const apiMembers = await getGroupMembers(Number(groupId));
+      setMembers(apiMembers);
+
+      // Check if current user is a member of the group
+      if (user?.id) {
+        const isMember = apiMembers.some((member: any) => member.userId === user.id);
+        setIsParticipating(isMember);
+      }
 
       const apiBets = await getBetsByGroupId(Number(groupId));
       setBets(apiBets);
@@ -47,6 +65,32 @@ export default function GroupPage() {
 
     loadData();
   }, [groupId, user?.id]);
+
+  // Handle join/leave group
+  const handleJoinLeave = async () => {
+    if (!user) return;
+
+    try {
+      if (isParticipating) {
+        // Leave the group
+        await leaveGroup(Number(groupId));
+        setIsParticipating(false);
+        // Refresh members list
+        const apiMembers = await getGroupMembers(Number(groupId));
+        setMembers(apiMembers);
+      } else {
+        // Join the group (no invite code for public groups)
+        await joinGroup(Number(groupId));
+        setIsParticipating(true);
+        // Refresh members list
+        const apiMembers = await getGroupMembers(Number(groupId));
+        setMembers(apiMembers);
+      }
+    } catch (error) {
+      console.error("Error joining/leaving group:", error);
+      alert(error instanceof Error ? error.message : "Une erreur est survenue");
+    }
+  };
 
   return (
     <div className="max-w-5xl mx-auto p-6 flex flex-col gap-8">
@@ -71,7 +115,8 @@ export default function GroupPage() {
                 ? "bg-red-600 text-white hover:bg-red-700"
                 : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
-            onClick={() => setIsParticipating(!isParticipating)}
+            onClick={handleJoinLeave}
+            disabled={!user}
           >
             {isParticipating ? "Sortir du groupe" : "Participer"}
           </button>
@@ -92,7 +137,7 @@ export default function GroupPage() {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            Membres ({group?.members?.length})
+            Membres ({members.length})
           </h2>
           {group?.visibility === "private" && user?.id === group?.ownerId && (
             <Button
@@ -106,7 +151,7 @@ export default function GroupPage() {
           )}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {group?.members?.map((member) => (
+          {members.map((member) => (
             <div
               key={member.id}
               className="flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-700 rounded"

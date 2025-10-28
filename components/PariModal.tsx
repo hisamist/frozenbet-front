@@ -57,24 +57,31 @@ export function PariModal({ open, onClose, matchId, groupId, userId, onSubmit }:
   };
 
   return (
-    <ModalComponent open={open} onClose={onClose} title="Faire un pari">
-      <Box display="flex" flexDirection="column" gap={2}>
-        <Typography variant="body1">Entrez votre pronostic pour le match :</Typography>
-        <TextField
-          label="Score équipe à domicile"
-          type="number"
-          value={homeScore}
-          onChange={(e) => setHomeScore(e.target.value ? Number(e.target.value) : "")}
-        />
-        <TextField
-          label="Score équipe à l'extérieur"
-          type="number"
-          value={awayScore}
-          onChange={(e) => setAwayScore(e.target.value ? Number(e.target.value) : "")}
-        />
-        <Button variant="contained" color="primary" fullWidth onClick={handleSubmit}>
-          Enregistrer le pari
-        </Button>
+    <ModalComponent open={open} onClose={onClose}>
+      <Box sx={{ p: 4, bgcolor: "background.paper" }}>
+        <Typography variant="h5" sx={{ mb: 3, color: "text.primary" }}>
+          Faire un pari
+        </Typography>
+        <Box display="flex" flexDirection="column" gap={2}>
+          <Typography variant="body1" color="text.secondary">
+            Entrez votre pronostic pour le match :
+          </Typography>
+          <TextField
+            label="Score équipe à domicile"
+            type="number"
+            value={homeScore}
+            onChange={(e) => setHomeScore(e.target.value ? Number(e.target.value) : "")}
+          />
+          <TextField
+            label="Score équipe à l'extérieur"
+            type="number"
+            value={awayScore}
+            onChange={(e) => setAwayScore(e.target.value ? Number(e.target.value) : "")}
+          />
+          <Button variant="contained" color="primary" fullWidth onClick={handleSubmit}>
+            Enregistrer le pari
+          </Button>
+        </Box>
       </Box>
     </ModalComponent>
   );

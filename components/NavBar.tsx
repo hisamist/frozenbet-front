@@ -1,11 +1,9 @@
 "use client";
 
-import { InvitationsListModal } from "@/components/InvitationsListModal";
+import { NotificationsModal } from "@/components/NotificationsModal";
 import { useAuth } from "@/context/AuthContext";
-import { getReceivedInvitations } from "@/services/APIService";
-import { GroupInvitation, Notification } from "@/types";
+import { getUnreadNotificationsCount } from "@/services/APIService";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import AppBar from "@mui/material/AppBar";
 import Badge from "@mui/material/Badge";
@@ -16,71 +14,86 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import NotificationsPopover from "./NotificationPopover";
 
 interface NavbarProps {
-  onLoginClick: () => void; // ouvre AuthModal
-  notifications?: Notification[];
+  onLoginClick: () => void;
 }
 
-export default function Navbar({ onLoginClick, notifications = [] }: NavbarProps) {
-  const { user, logout } = useAuth(); // hook AuthProvider
-  const [mounted, setMounted] = useState(false);
-  const { isAuthenticated } = useAuth();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [clientNotifications, setClientNotifications] = useState<Notification[]>([]);
-  const [invitationsModalOpen, setInvitationsModalOpen] = useState(false);
-  const [pendingInvitationsCount, setPendingInvitationsCount] = useState(0);
-  const open = Boolean(anchorEl);
+export default function Navbar({ onLoginClick }: NavbarProps) {
+  const { user, logout, isAuthenticated } = useAuth();
+  const [notificationsModalOpen, setNotificationsModalOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  const loadPendingInvitationsCount = useCallback(async () => {
-    try {
-      const invitations = await getReceivedInvitations();
-      const pending = invitations.filter((inv: GroupInvitation) => inv.status === "pending");
-      setPendingInvitationsCount(pending.length);
-    } catch (err) {
-      console.error("Error loading pending invitations:", err);
+  // Fonction pour récupérer le username depuis localStorage
+  const getUsername = (): string => {
+    if (typeof window === "undefined") return "";
+
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      try {
+        const userData = JSON.parse(savedUser);
+        return userData.username || userData.email?.split("@")[0] || "";
+      } catch (err) {
+        console.error("Error parsing user from localStorage:", err);
+        return "";
+      }
     }
-  }, []);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    setClientNotifications(notifications);
-  }, [notifications]);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadPendingInvitationsCount();
-    }
-  }, [isAuthenticated, loadPendingInvitationsCount]);
-
-  const handleNotificationsClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
+    return "";
   };
 
-  const handleClose = () => setAnchorEl(null);
+  const username = getUsername();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadUnreadCount = async () => {
+      if (!isAuthenticated) {
+        setUnreadCount(0);
+        return;
+      }
+      try {
+        const count = await getUnreadNotificationsCount();
+        if (isMounted) {
+          setUnreadCount(count);
+        }
+      } catch (err) {
+        console.error("Error loading unread notifications count:", err);
+      }
+    };
+
+    loadUnreadCount();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isAuthenticated]);
+
+  const loadUnreadCount = useCallback(async () => {
+    if (!isAuthenticated) return;
+    try {
+      const count = await getUnreadNotificationsCount();
+      setUnreadCount(count);
+    } catch (err) {
+      console.error("Error loading unread notifications count:", err);
+    }
+  }, [isAuthenticated]);
 
   const handleAuthClick = () => {
     if (user) {
-      logout(); // si connecté, bouton devient logout
+      logout();
     } else {
-      onLoginClick(); // si pas connecté, ouvre AuthModal
+      onLoginClick();
     }
   };
 
-  const handleInvitationsClick = () => {
-    setInvitationsModalOpen(true);
+  const handleNotificationsClick = () => {
+    setNotificationsModalOpen(true);
   };
 
-  const handleInvitationsModalClose = () => {
-    setInvitationsModalOpen(false);
-    loadPendingInvitationsCount(); // Refresh count after closing modal
+  const handleNotificationsModalClose = () => {
+    setNotificationsModalOpen(false);
+    loadUnreadCount();
   };
-
-  if (!mounted) return null;
 
   return (
     <>
@@ -107,40 +120,45 @@ export default function Navbar({ onLoginClick, notifications = [] }: NavbarProps
 
           {isAuthenticated ? (
             <>
-              <IconButton color="inherit" onClick={handleInvitationsClick}>
-                <Badge badgeContent={pendingInvitationsCount} color="error">
-                  <MailIcon />
-                </Badge>
-              </IconButton>
-
               <IconButton color="inherit" onClick={handleNotificationsClick}>
-                <Badge badgeContent={notifications.length} color="error">
+                <Badge badgeContent={unreadCount} color="error">
                   <NotificationsIcon />
                 </Badge>
               </IconButton>
 
-              <IconButton color="inherit" sx={{ ml: 1 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  ml: 1,
+                  cursor: "default",
+                  pointerEvents: "none",
+                  userSelect: "none",
+                }}
+              >
                 <AccountCircleIcon />
-              </IconButton>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: "inherit",
+                    fontWeight: 500,
+                  }}
+                >
+                  {username}
+                </Typography>
+              </Box>
             </>
           ) : null}
         </Toolbar>
       </AppBar>
 
       {user && (
-        <>
-          <NotificationsPopover
-            open={open}
-            anchorEl={anchorEl}
-            onClose={handleClose}
-            notifications={clientNotifications}
-          />
-          <InvitationsListModal
-            open={invitationsModalOpen}
-            onClose={handleInvitationsModalClose}
-            onInvitationAccepted={loadPendingInvitationsCount}
-          />
-        </>
+        <NotificationsModal
+          open={notificationsModalOpen}
+          onClose={handleNotificationsModalClose}
+          onNotificationUpdate={loadUnreadCount}
+        />
       )}
     </>
   );

@@ -7,6 +7,7 @@ import Button from "@mui/material/Button";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
 import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 import { useState } from "react";
 
 interface AuthModalProps {
@@ -83,81 +84,86 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
   };
 
   return (
-    <ModalComponent open={open} onClose={onClose} title="Connexion ou Inscription">
-      <Tabs value={authTab} onChange={(e, v) => setAuthTab(v as 0 | 1)} centered>
-        <Tab label="Login" />
-        <Tab label="Register" />
-      </Tabs>
-      <Box mt={2}>
-        {authTab === 0 ? (
-          <>
-            <TextField
-              fullWidth
-              label="Email"
-              variant="outlined"
-              margin="normal"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              error={!!errors.email}
-              helperText={errors.email}
-            />
-            <TextField
-              fullWidth
-              label="Mot de passe"
-              type="password"
-              variant="outlined"
-              margin="normal"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              error={!!errors.password}
-              helperText={errors.password}
-            />
-          </>
-        ) : (
-          <>
-            <TextField
-              fullWidth
-              label="Nom d'utilisateur"
-              variant="outlined"
-              margin="normal"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              error={!!errors.username}
-              helperText={errors.username}
-            />
-            <TextField
-              fullWidth
-              label="Email"
-              variant="outlined"
-              margin="normal"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              error={!!errors.email}
-              helperText={errors.email}
-            />
-            <TextField
-              fullWidth
-              label="Mot de passe"
-              type="password"
-              variant="outlined"
-              margin="normal"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              error={!!errors.password}
-              helperText={errors.password}
-            />
-          </>
-        )}
-        <Button
-          variant="contained"
-          color="primary"
-          fullWidth
-          sx={{ mt: 2 }}
-          onClick={handleAuthSubmit}
-          disabled={loading}
-        >
-          {loading ? "Veuillez patienter..." : authTab === 0 ? "Se connecter" : "S'inscrire"}
-        </Button>
+    <ModalComponent open={open} onClose={onClose}>
+      <Box sx={{ p: 4, bgcolor: "background.paper" }}>
+        <Typography variant="h5" sx={{ mb: 3, color: "text.primary" }}>
+          Connexion ou Inscription
+        </Typography>
+        <Tabs value={authTab} onChange={(e, v) => setAuthTab(v as 0 | 1)} centered>
+          <Tab label="Login" />
+          <Tab label="Register" />
+        </Tabs>
+        <Box mt={2}>
+          {authTab === 0 ? (
+            <>
+              <TextField
+                fullWidth
+                label="Email"
+                variant="outlined"
+                margin="normal"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                error={!!errors.email}
+                helperText={errors.email}
+              />
+              <TextField
+                fullWidth
+                label="Mot de passe"
+                type="password"
+                variant="outlined"
+                margin="normal"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                error={!!errors.password}
+                helperText={errors.password}
+              />
+            </>
+          ) : (
+            <>
+              <TextField
+                fullWidth
+                label="Nom d'utilisateur"
+                variant="outlined"
+                margin="normal"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                error={!!errors.username}
+                helperText={errors.username}
+              />
+              <TextField
+                fullWidth
+                label="Email"
+                variant="outlined"
+                margin="normal"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                error={!!errors.email}
+                helperText={errors.email}
+              />
+              <TextField
+                fullWidth
+                label="Mot de passe"
+                type="password"
+                variant="outlined"
+                margin="normal"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                error={!!errors.password}
+                helperText={errors.password}
+              />
+            </>
+          )}
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 2 }}
+            onClick={handleAuthSubmit}
+            disabled={loading}
+          >
+            {loading ? "Veuillez patienter..." : authTab === 0 ? "Se connecter" : "S'inscrire"}
+          </Button>
+        </Box>
       </Box>
     </ModalComponent>
   );
