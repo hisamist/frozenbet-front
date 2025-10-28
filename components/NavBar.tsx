@@ -1,8 +1,11 @@
 "use client";
 
+import { InvitationsListModal } from "@/components/InvitationsListModal";
 import { useAuth } from "@/context/AuthContext";
-import { Notification } from "@/types";
+import { getReceivedInvitations } from "@/services/APIService";
+import { GroupInvitation, Notification } from "@/types";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import AppBar from "@mui/material/AppBar";
 import Badge from "@mui/material/Badge";
@@ -12,7 +15,7 @@ import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import NotificationsPopover from "./NotificationPopover";
 
 interface NavbarProps {
@@ -26,7 +29,19 @@ export default function Navbar({ onLoginClick, notifications = [] }: NavbarProps
   const { isAuthenticated } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [clientNotifications, setClientNotifications] = useState<Notification[]>([]);
+  const [invitationsModalOpen, setInvitationsModalOpen] = useState(false);
+  const [pendingInvitationsCount, setPendingInvitationsCount] = useState(0);
   const open = Boolean(anchorEl);
+
+  const loadPendingInvitationsCount = useCallback(async () => {
+    try {
+      const invitations = await getReceivedInvitations();
+      const pending = invitations.filter((inv: GroupInvitation) => inv.status === "pending");
+      setPendingInvitationsCount(pending.length);
+    } catch (err) {
+      console.error("Error loading pending invitations:", err);
+    }
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -35,6 +50,12 @@ export default function Navbar({ onLoginClick, notifications = [] }: NavbarProps
   useEffect(() => {
     setClientNotifications(notifications);
   }, [notifications]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadPendingInvitationsCount();
+    }
+  }, [isAuthenticated, loadPendingInvitationsCount]);
 
   const handleNotificationsClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -48,6 +69,15 @@ export default function Navbar({ onLoginClick, notifications = [] }: NavbarProps
     } else {
       onLoginClick(); // si pas connecté, ouvre AuthModal
     }
+  };
+
+  const handleInvitationsClick = () => {
+    setInvitationsModalOpen(true);
+  };
+
+  const handleInvitationsModalClose = () => {
+    setInvitationsModalOpen(false);
+    loadPendingInvitationsCount(); // Refresh count after closing modal
   };
 
   if (!mounted) return null;
@@ -77,6 +107,12 @@ export default function Navbar({ onLoginClick, notifications = [] }: NavbarProps
 
           {isAuthenticated ? (
             <>
+              <IconButton color="inherit" onClick={handleInvitationsClick}>
+                <Badge badgeContent={pendingInvitationsCount} color="error">
+                  <MailIcon />
+                </Badge>
+              </IconButton>
+
               <IconButton color="inherit" onClick={handleNotificationsClick}>
                 <Badge badgeContent={notifications.length} color="error">
                   <NotificationsIcon />
@@ -92,12 +128,19 @@ export default function Navbar({ onLoginClick, notifications = [] }: NavbarProps
       </AppBar>
 
       {user && (
-        <NotificationsPopover
-          open={open}
-          anchorEl={anchorEl}
-          onClose={handleClose}
-          notifications={clientNotifications}
-        />
+        <>
+          <NotificationsPopover
+            open={open}
+            anchorEl={anchorEl}
+            onClose={handleClose}
+            notifications={clientNotifications}
+          />
+          <InvitationsListModal
+            open={invitationsModalOpen}
+            onClose={handleInvitationsModalClose}
+            onInvitationAccepted={loadPendingInvitationsCount}
+          />
+        </>
       )}
     </>
   );

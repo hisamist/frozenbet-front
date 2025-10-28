@@ -1,7 +1,7 @@
-import { Group } from "@/types";
-import Link from "next/link";
-import SportsHockeyIcon from "@mui/icons-material/SportsHockey";
 import { getIconColorById } from "@/colors";
+import { Group } from "@/types";
+import SportsHockeyIcon from "@mui/icons-material/SportsHockey";
+import Link from "next/link";
 
 interface GroupCardProps {
   group: Group;

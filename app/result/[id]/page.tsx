@@ -1,6 +1,6 @@
 "use client";
 
-import { MockAPIService } from "@/services/MockAPIService";
+import { getBets } from "@/services/APIService";
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -10,7 +10,6 @@ import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getBets } from "@/services/APIService";
 
 export default function ResultPage() {
   const params = useParams();

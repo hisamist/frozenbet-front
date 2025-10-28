@@ -1,4 +1,3 @@
-import { GroupStatistics } from "@/types";
 import axios, { AxiosError } from "axios";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
@@ -253,6 +252,63 @@ export const getStatisticsByGroupId = async (groupId: number) => {
     });
     // No need to normalize since the response could be empty
     return res.data.data;
+  } catch (err) {
+    throw new Error(handleError(err));
+  }
+};
+
+// --------------------
+// Invitations endpoints
+// --------------------
+export const sendInvitation = async (payload: { inviteeEmail: string; groupId: number }) => {
+  try {
+    const res = await api.post("/invitations", payload, { headers: authHeaders() });
+    return res.data;
+  } catch (err) {
+    throw new Error(handleError(err));
+  }
+};
+
+export const getReceivedInvitations = async () => {
+  try {
+    const res = await api.get("/invitations/received", { headers: authHeaders() });
+    return normalizeList(res.data);
+  } catch (err) {
+    throw new Error(handleError(err));
+  }
+};
+
+export const getSentInvitations = async () => {
+  try {
+    const res = await api.get("/invitations/sent", { headers: authHeaders() });
+    return normalizeList(res.data);
+  } catch (err) {
+    throw new Error(handleError(err));
+  }
+};
+
+export const acceptInvitation = async (token: string) => {
+  try {
+    const res = await api.post(`/invitations/${token}/accept`, {}, { headers: authHeaders() });
+    return res.data;
+  } catch (err) {
+    throw new Error(handleError(err));
+  }
+};
+
+export const rejectInvitation = async (token: string) => {
+  try {
+    const res = await api.post(`/invitations/${token}/reject`, {}, { headers: authHeaders() });
+    return res.data;
+  } catch (err) {
+    throw new Error(handleError(err));
+  }
+};
+
+export const deleteInvitation = async (id: number) => {
+  try {
+    const res = await api.delete(`/invitations/${id}`, { headers: authHeaders() });
+    return res.data;
   } catch (err) {
     throw new Error(handleError(err));
   }

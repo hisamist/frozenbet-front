@@ -2,10 +2,10 @@
 
 import CreateGroupModal from "@/components/CreateGroupModal";
 import GroupCard from "@/components/GroupCard";
-import { Group } from "@/types";
-import { getGroups } from "@/services/APIService";
 import Loading from "@/components/Loading";
 import { useAuth } from "@/context/AuthContext";
+import { getGroups } from "@/services/APIService";
+import { Group } from "@/types";
 import { useEffect, useState } from "react";
 
 export default function Home() {

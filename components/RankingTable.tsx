@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from "react";
+import { getStatisticsByGroupId } from "@/services/APIService";
+import { GroupStatistics } from "@/types";
 import {
+  Box,
+  CircularProgress,
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  CircularProgress,
   Typography,
-  Box,
 } from "@mui/material";
-import { getStatisticsByGroupId } from "@/services/APIService";
-import { GroupStatistics } from "@/types";
+import React, { useEffect, useState } from "react";
 
 interface RankingTableProps {
   groupId: number;

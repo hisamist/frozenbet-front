@@ -1,14 +1,18 @@
 "use client";
 
 import { getIconColorById } from "@/colors";
+import { InvitationModal } from "@/components/InvitationModal";
 import MatchesTable from "@/components/MatchTable";
 import RankingTable from "@/components/RankingTable";
 import YourBetTable from "@/components/YourBetTable";
-import { getGroupById, getBetsByGroupId } from "@/services/APIService";
+import { useAuth } from "@/context/AuthContext";
+import { getBetsByGroupId, getGroupById } from "@/services/APIService";
 import { GroupFull, Prediction } from "@/types";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import PersonIcon from "@mui/icons-material/Person";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import SportsHockeyIcon from "@mui/icons-material/SportsHockey";
+import Button from "@mui/material/Button";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -17,10 +21,12 @@ export default function GroupPage() {
   const groupId = params.id as string;
   const [isParticipating, setIsParticipating] = useState(false);
   const iconColor = getIconColorById(Number(groupId));
+  const { user } = useAuth();
   // Mock group data
   const [group, setGroup] = useState<GroupFull | null>(null);
   const [bets, setBets] = useState<Prediction[]>([]);
   const [yourBets, setYourBets] = useState<Prediction[]>([]);
+  const [invitationModalOpen, setInvitationModalOpen] = useState(false);
 
   // Charger les données du groupe et les paris via API
   useEffect(() => {
@@ -78,9 +84,21 @@ export default function GroupPage() {
 
       {/* Members */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-          Membres ({group?.members?.length})
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            Membres ({group?.members?.length})
+          </h2>
+          {group?.visibility === "private" && user?.id === group?.ownerId && (
+            <Button
+              variant="contained"
+              startIcon={<PersonAddIcon />}
+              onClick={() => setInvitationModalOpen(true)}
+              size="small"
+            >
+              Inviter un membre
+            </Button>
+          )}
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {group?.members?.map((member) => (
             <div
@@ -121,6 +139,16 @@ export default function GroupPage() {
         <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Classement</h2>
         <RankingTable groupId={Number(groupId)} />
       </div>
+
+      {/* Invitation Modal */}
+      {group && (
+        <InvitationModal
+          open={invitationModalOpen}
+          onClose={() => setInvitationModalOpen(false)}
+          groupId={Number(groupId)}
+          groupName={group.name}
+        />
+      )}
     </div>
   );
 }
