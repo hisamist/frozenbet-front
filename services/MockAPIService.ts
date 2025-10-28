@@ -1,5 +1,6 @@
 // services/MockAPIService.ts
 import { Group, GroupFull, User, Competition, Prediction, Match } from "@/types";
+import { mockGroups } from "./MockGroupData";
 
 // --- Mock data ---
 const mockUser: User = {
@@ -21,90 +22,6 @@ const mockCompetition: Competition = {
   status: "upcoming",
   createdAt: new Date().toISOString(),
 };
-
-const mockGroups: GroupFull[] = [
-  {
-    id: 1,
-    name: "HockerBet Champions",
-    description: "Pariez et défiez vos amis sur vos équipes favorites !",
-    ownerId: 1,
-    competitionId: 1,
-    visibility: "public",
-    createdAt: new Date().toISOString(),
-    owner: mockUser,
-    competition: mockCompetition,
-    members: [
-      {
-        id: 1,
-        groupId: 1,
-        userId: 1,
-        role: "owner",
-        joinedAt: new Date().toISOString(),
-        totalPoints: 12,
-        user: mockUser,
-      },
-      {
-        id: 2,
-        groupId: 1,
-        userId: 2,
-        role: "member",
-        joinedAt: new Date().toISOString(),
-        totalPoints: 8,
-        user: {
-          id: 2,
-          username: "Bob",
-          email: "bob@example.com",
-          passwordHash: "hashed",
-          createdAt: new Date().toISOString(),
-        },
-      },
-    ],
-    scoringRules: [
-      {
-        id: 1,
-        groupId: 1,
-        ruleDescription: "Exact Score",
-        points: 5,
-        createdAt: new Date().toISOString(),
-      },
-      {
-        id: 2,
-        groupId: 1,
-        ruleDescription: "Correct Winner",
-        points: 2,
-        createdAt: new Date().toISOString(),
-      },
-    ],
-    rankings: [
-      {
-        id: 1,
-        groupId: 1,
-        userId: 1,
-        totalPoints: 12,
-        totalPredictions: 5,
-        correctPredictions: 3,
-        rank: 1,
-        user: mockUser,
-      },
-      {
-        id: 2,
-        groupId: 1,
-        userId: 2,
-        totalPoints: 8,
-        totalPredictions: 5,
-        correctPredictions: 2,
-        rank: 2,
-        user: {
-          id: 2,
-          username: "Bob",
-          email: "bob@example.com",
-          passwordHash: "hashed",
-          createdAt: new Date().toISOString(),
-        },
-      },
-    ],
-  },
-];
 
 // --- Mock Predictions / Bets ---
 const mockBets: Prediction[] = [
@@ -215,6 +132,8 @@ export const MockAPIService = {
     mockBets.filter(
       (p) => (!groupId || p.groupId === groupId) && (!matchId || p.matchId === matchId)
     ),
+  getBetsByGroupId: async (groupId?: number) =>
+    mockBets.filter((p) => !groupId || p.groupId === groupId),
   getYourBets: async (userId: number, groupId?: number) =>
     mockBets.filter((p) => p.userId === userId && (!groupId || p.groupId === groupId)),
 };

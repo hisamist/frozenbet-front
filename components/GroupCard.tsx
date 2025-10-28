@@ -1,26 +1,20 @@
 import { Group } from "@/types";
-import Image from "next/image";
 import Link from "next/link";
+import SportsHockeyIcon from "@mui/icons-material/SportsHockey";
+import { getIconColorById } from "@/colors";
 
 interface GroupCardProps {
   group: Group;
 }
 
-const randomImages = [
-  "/images/group1.jpg",
-  "/images/group2.jpg",
-  "/images/group3.jpg",
-  "/images/group4.jpg",
-];
-
 export default function GroupCard({ group }: GroupCardProps) {
-  const imageUrl = randomImages[Math.floor(Math.random() * randomImages.length)];
+  const iconColor = getIconColorById(group.id);
 
   return (
-    <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden w-full max-w-lg">
-      {/* Image */}
-      <div className="relative h-40 w-full">
-        <Image src={imageUrl} alt={group.name} fill className="object-cover" />
+    <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden w-full max-w-lg transition-transform hover:scale-[1.02] duration-200">
+      {/* Icône hockey centrée */}
+      <div className="relative h-40 w-full flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+        <SportsHockeyIcon sx={{ fontSize: 120, color: iconColor }} />
       </div>
 
       {/* Contenu */}
@@ -28,13 +22,13 @@ export default function GroupCard({ group }: GroupCardProps) {
         <h2 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">{group.name}</h2>
         <p className="text-gray-700 dark:text-gray-300 mb-2">{group.description}</p>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-          Max member: {group.max_members}
+          Created at: {new Date(group.createdAt).toLocaleDateString()}
         </p>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-          Visibility: {group.visibility}
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          Visibility: <span className="capitalize">{group.visibility}</span>
         </p>
 
-        {/* Bouton redirige vers /group/id */}
+        {/* Bouton */}
         <Link
           href={`/group/${group.id}`}
           className="mt-2 block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded text-center"

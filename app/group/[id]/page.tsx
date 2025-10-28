@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import GroupIcon from "@mui/icons-material/Group";
 import PersonIcon from "@mui/icons-material/Person";
@@ -8,119 +8,33 @@ import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import BetListTable from "@/components/BetTable";
 import YourBetTable from "@/components/YourBetTable";
 import { GroupFull, Match, Prediction, User } from "@/types";
+import { MockAPIService } from "@/services/MockAPIService";
+import { useParams } from "next/navigation";
+import { getIconColorById } from "@/colors";
+import SportsHockeyIcon from "@mui/icons-material/SportsHockey";
 
 export default function GroupPage() {
+  const params = useParams();
+  const groupId = params.id as string;
   const [isParticipating, setIsParticipating] = useState(false);
-
+  const iconColor = getIconColorById(Number(groupId));
   // Mock group data
-  const group: GroupFull = {
-    id: 1,
-    name: "HockerBet Champions",
-    description: "Pariez et défiez vos amis sur vos équipes favorites !",
-    ownerId: 1,
-    competitionId: 1,
-    visibility: "public",
-    createdAt: new Date().toISOString(),
-    owner: {
-      id: 1,
-      username: "Alice",
-      email: "alice@example.com",
-      passwordHash: "hashed",
-      createdAt: new Date().toISOString(),
-      avatarUrl: "", // optional
-    } as User,
-    competition: {
-      id: 1,
-      themeId: 1,
-      name: "Champions League 2025",
-      startDate: new Date().toISOString(),
-      endDate: new Date(Date.now() + 7 * 86400000).toISOString(),
-      status: "upcoming",
-      createdAt: new Date().toISOString(),
-    },
-    members: [
-      {
-        id: 1,
-        groupId: 1,
-        userId: 1,
-        role: "owner",
-        joinedAt: new Date().toISOString(),
-        totalPoints: 12,
-        user: {
-          id: 1,
-          username: "Alice",
-          email: "alice@example.com",
-          passwordHash: "hashed",
-          createdAt: new Date().toISOString(),
-        },
-      },
-      {
-        id: 2,
-        groupId: 1,
-        userId: 2,
-        role: "member",
-        joinedAt: new Date().toISOString(),
-        totalPoints: 8,
-        user: {
-          id: 2,
-          username: "Bob",
-          email: "bob@example.com",
-          passwordHash: "hashed",
-          createdAt: new Date().toISOString(),
-        },
-      },
-    ],
-    scoringRules: [
-      {
-        id: 1,
-        groupId: 1,
-        ruleDescription: "Exact Score",
-        points: 5,
-        createdAt: new Date().toISOString(),
-      },
-      {
-        id: 2,
-        groupId: 1,
-        ruleDescription: "Correct Winner",
-        points: 2,
-        createdAt: new Date().toISOString(),
-      },
-    ],
-    rankings: [
-      {
-        id: 1,
-        groupId: 1,
-        userId: 1,
-        totalPoints: 12,
-        totalPredictions: 5,
-        correctPredictions: 3,
-        rank: 1,
-        user: {
-          id: 1,
-          username: "Alice",
-          email: "alice@example.com",
-          passwordHash: "hashed",
-          createdAt: new Date().toISOString(),
-        },
-      },
-      {
-        id: 2,
-        groupId: 1,
-        userId: 2,
-        totalPoints: 8,
-        totalPredictions: 5,
-        correctPredictions: 2,
-        rank: 2,
-        user: {
-          id: 2,
-          username: "Bob",
-          email: "bob@example.com",
-          passwordHash: "hashed",
-          createdAt: new Date().toISOString(),
-        },
-      },
-    ],
-  };
+  const [group, setGroup] = useState<GroupFull | null>(null);
+  const [bets, setBets] = useState<Prediction[]>([]);
+  const [yourBets, setYourBets] = useState<Prediction[]>([]);
+
+  // Charger les données du groupe et les paris mockés
+  useEffect(() => {
+    const loadData = async () => {
+      const mockGroup = await MockAPIService.getGroupById(Number(groupId)); // <-- ID de test
+      setGroup(mockGroup as GroupFull);
+      const mockBets = await MockAPIService.getBetsByGroupId();
+      const mockYourBets = mockBets.filter((bet: Prediction) => bet.userId === 1);
+      console.log(mockBets);
+      // Supposons que l'ID utilisateur actuel est 1
+    };
+    loadData();
+  }, []);
 
   // Mock Predictions for Bets
   const mockBets: Prediction[] = [
@@ -141,7 +55,7 @@ export default function GroupPage() {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       } as Match,
-      user: group.owner,
+      user: group?.owner,
       homeScorePrediction: 2,
       awayScorePrediction: 1,
       pointsEarned: 3,
@@ -164,7 +78,7 @@ export default function GroupPage() {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       } as Match,
-      user: group.owner,
+      user: group?.owner,
       homeScorePrediction: 1,
       awayScorePrediction: 1,
       pointsEarned: null,
@@ -178,13 +92,13 @@ export default function GroupPage() {
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <div className="flex items-center gap-6">
           <div className="relative w-40 h-40 flex-shrink-0 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-            <GroupIcon sx={{ fontSize: 60, color: "gray" }} />
+            <SportsHockeyIcon sx={{ fontSize: 120, color: iconColor }} />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{group.name}</h1>
-            <p className="text-gray-700 dark:text-gray-300 mt-2">{group.description}</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{group?.name}</h1>
+            <p className="text-gray-700 dark:text-gray-300 mt-2">{group?.description}</p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Owner: {group.owner?.username ?? "Unknown"}
+              Owner: {group?.owner?.username ?? "Unknown"}
             </p>
           </div>
         </div>
@@ -208,17 +122,17 @@ export default function GroupPage() {
           <EmojiEventsIcon sx={{ fontSize: 40, color: "gray" }} />
         </div>
         <p className="text-lg font-semibold text-gray-900 dark:text-white">
-          {group.competition?.name ?? "Competition"}
+          {group?.competition?.name ?? "Competition"}
         </p>
       </div>
 
       {/* Members */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
         <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-          Membres ({group.members?.length})
+          Membres ({group?.members?.length})
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {group.members?.map((member) => (
+          {group?.members?.map((member) => (
             <div
               key={member.id}
               className="flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-700 rounded"
@@ -240,7 +154,7 @@ export default function GroupPage() {
           Règles de scoring
         </h2>
         <ul className="list-disc list-inside text-gray-700 dark:text-gray-300">
-          {group.scoringRules?.map((rule) => (
+          {group?.scoringRules?.map((rule) => (
             <li key={rule.id}>
               {rule.ruleDescription} : {rule.points} points
             </li>
@@ -264,7 +178,7 @@ export default function GroupPage() {
             </tr>
           </thead>
           <tbody>
-            {group.rankings?.map((r) => (
+            {group?.rankings?.map((r) => (
               <tr key={r.userId} className="border-t border-gray-200 dark:border-gray-700">
                 <td className="px-2 py-1">{r.rank}</td>
                 <td className="px-2 py-1">{r.user?.username ?? "Unknown"}</td>
