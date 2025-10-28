@@ -221,3 +221,9 @@ export const getYourBets = async (userId: number, groupId?: number) => {
     throw new Error(handleError(err));
   }
 };
+
+export const getMatchesByCompetitionId = async (competitionId: number) => {
+  // Use configured API base URL instead of Next.js local API route
+  const response = await api.get(`/competitions/${competitionId}/matches`);
+  return response;
+};

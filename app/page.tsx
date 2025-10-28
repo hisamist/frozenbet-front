@@ -6,8 +6,6 @@ import { Group } from "@/types";
 import { getGroups } from "@/services/APIService";
 import Loading from "@/components/Loading";
 import { useAuth } from "@/context/AuthContext";
-import { MockAPIService } from "@/services/MockAPIService";
-import { Group } from "@/types";
 import { useEffect, useState } from "react";
 
 export default function Home() {

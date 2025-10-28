@@ -3,14 +3,10 @@
 import { getIconColorById } from "@/colors";
 import MatchesTable from "@/components/MatchTable";
 import YourBetTable from "@/components/YourBetTable";
-import { MockAPIService } from "@/services/MockAPIService";
+import { getGroupById, getBetsByGroupId } from "@/services/APIService";
 import { GroupFull, Prediction } from "@/types";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import PersonIcon from "@mui/icons-material/Person";
-import { GroupFull, Prediction } from "@/types";
-import { getGroupById, getBetsByGroupId } from "@/services/APIService";
-import { useParams } from "next/navigation";
-import { getIconColorById } from "@/colors";
 import SportsHockeyIcon from "@mui/icons-material/SportsHockey";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -23,6 +19,7 @@ export default function GroupPage() {
   // Mock group data
   const [group, setGroup] = useState<GroupFull | null>(null);
   const [bets, setBets] = useState<Prediction[]>([]);
+  const [yourBets, setYourBets] = useState<Prediction[]>([]);
 
   // Charger les données du groupe et les paris via API
   useEffect(() => {
@@ -32,8 +29,8 @@ export default function GroupPage() {
       const apiBets = await getBetsByGroupId(Number(groupId));
       setBets(apiBets);
       // Exemple: filtrer pour l'utilisateur courant (mock id 1 si pas d'auth)
-      const yourBets = apiBets.filter((bet: Prediction) => bet.userId === 1);
-      setYourBets(yourBets);
+      const filtered = apiBets.filter((bet: Prediction) => bet.userId === 1);
+      setYourBets(filtered);
     };
     loadData();
   }, [groupId]);
@@ -116,7 +113,7 @@ export default function GroupPage() {
 
       {/* Tables */}
       <MatchesTable competitionId={1} isParticipating={isParticipating} groupId={Number(groupId)} />
-      <YourBetTable bets={bets} isParticipating={isParticipating} />
+      <YourBetTable bets={yourBets} isParticipating={isParticipating} />
 
       {/* Rankings */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
