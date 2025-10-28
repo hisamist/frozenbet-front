@@ -61,8 +61,10 @@ export default function GroupPage() {
 
       // Only fetch user bets if user is loaded
       if (user?.id) {
-        const yourBet = await getYourBets(user.id);
-        setYourBets(yourBet);
+        const allUserBets = await getYourBets(user.id);
+        // Filter bets for current group
+        const filteredBets = allUserBets.filter((bet: any) => bet.groupId === Number(groupId));
+        setYourBets(filteredBets);
       }
     };
 
