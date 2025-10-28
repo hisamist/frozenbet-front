@@ -13,13 +13,16 @@ import {
   getYourBets,
   joinGroup,
   leaveGroup,
+  removeMember,
 } from "@/services/APIService";
 import { GroupFull, Prediction } from "@/types";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import PersonIcon from "@mui/icons-material/Person";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
 import SportsHockeyIcon from "@mui/icons-material/SportsHockey";
 import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
 import { useParams } from "next/navigation";
 import { userAgent } from "next/server";
 import { useEffect, useState } from "react";
@@ -92,6 +95,24 @@ export default function GroupPage() {
     }
   };
 
+  // Handle remove member (owner only)
+  const handleRemoveMember = async (userId: number, username: string) => {
+    if (!user || user.id !== group?.ownerId) return;
+
+    const confirmed = window.confirm(`Êtes-vous sûr de vouloir retirer ${username} du groupe ?`);
+    if (!confirmed) return;
+
+    try {
+      await removeMember(Number(groupId), userId);
+      // Refresh members list
+      const apiMembers = await getGroupMembers(Number(groupId));
+      setMembers(apiMembers);
+    } catch (error) {
+      console.error("Error removing member:", error);
+      alert(error instanceof Error ? error.message : "Une erreur est survenue");
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto p-6 flex flex-col gap-8">
       {/* Header */}
@@ -154,14 +175,28 @@ export default function GroupPage() {
           {members.map((member) => (
             <div
               key={member.id}
-              className="flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-700 rounded"
+              className="flex items-center justify-between gap-2 p-2 bg-gray-100 dark:bg-gray-700 rounded"
             >
-              <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                <PersonIcon sx={{ fontSize: 20, color: "gray" }} />
+              <div className="flex items-center gap-2">
+                <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                  <PersonIcon sx={{ fontSize: 20, color: "gray" }} />
+                </div>
+                <span className="text-gray-900 dark:text-white">
+                  {member.user?.username ?? "Unknown"}
+                </span>
               </div>
-              <span className="text-gray-900 dark:text-white">
-                {member.user?.username ?? "Unknown"}
-              </span>
+              {user?.id === group?.ownerId && member.userId !== user?.id && (
+                <IconButton
+                  size="small"
+                  onClick={() =>
+                    handleRemoveMember(member.userId, member.user?.username ?? "ce membre")
+                  }
+                  sx={{ color: "error.main" }}
+                  title="Retirer du groupe"
+                >
+                  <PersonRemoveIcon fontSize="small" />
+                </IconButton>
+              )}
             </div>
           ))}
         </div>
