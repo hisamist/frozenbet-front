@@ -4,9 +4,9 @@ import { NotificationsModal } from "@/components/NotificationsModal";
 import { useAuth } from "@/context/AuthContext";
 import { useLiveScores } from "@/context/LiveScoresContext";
 import { getUnreadNotificationsCount } from "@/services/APIService";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import AppBar from "@mui/material/AppBar";
+import Avatar from "@mui/material/Avatar";
 import Badge from "@mui/material/Badge";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -26,45 +26,46 @@ export default function Navbar({ onLoginClick }: NavbarProps) {
   const [notificationsModalOpen, setNotificationsModalOpen] = useState(false);
   const [invitationUnreadCount, setInvitationUnreadCount] = useState(0);
 
-  // Fonction pour récupérer le username depuis localStorage
+  // Récupère le username depuis localStorage (client only)
   const getUsername = (): string => {
     if (typeof window === "undefined") return "";
-
     const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      try {
-        const userData = JSON.parse(savedUser);
-        return userData.username || userData.email?.split("@")[0] || "";
-      } catch (err) {
-        console.error("Error parsing user from localStorage:", err);
-        return "";
-      }
+    if (!savedUser) return "";
+    try {
+      const userData = JSON.parse(savedUser);
+      return userData.username || userData.email?.split("@")[0] || "";
+    } catch (err) {
+      console.error("Error parsing user from localStorage:", err);
+      return "";
     }
-    return "";
   };
 
-  const username = getUsername();
+  // Recalcule le username quand l'état d'auth change
+  const username = useMemo(() => getUsername(), [isAuthenticated, user]);
+
+  // Initiale sécurisée
+  const usernameInitial = useMemo(
+    () => username?.trim()?.charAt(0)?.toUpperCase() || "?",
+    [username]
+  );
 
   useEffect(() => {
     let isMounted = true;
 
     const loadUnreadCount = async () => {
       if (!isAuthenticated) {
-        setInvitationUnreadCount(0);
+        if (isMounted) setInvitationUnreadCount(0);
         return;
       }
       try {
         const count = await getUnreadNotificationsCount();
-        if (isMounted) {
-          setInvitationUnreadCount(count);
-        }
+        if (isMounted) setInvitationUnreadCount(count);
       } catch (err) {
         console.error("Error loading unread notifications count:", err);
       }
     };
 
     loadUnreadCount();
-
     return () => {
       isMounted = false;
     };
@@ -80,7 +81,7 @@ export default function Navbar({ onLoginClick }: NavbarProps) {
     }
   }, [isAuthenticated]);
 
-  // Combine invitation and match notifications counts
+  // Combine les notifications d’invitations + live scores
   const totalUnreadCount = useMemo(() => {
     return invitationUnreadCount + getLiveScoresUnreadCount();
   }, [invitationUnreadCount, getLiveScoresUnreadCount]);
@@ -133,25 +134,17 @@ export default function Navbar({ onLoginClick }: NavbarProps) {
                 </Badge>
               </IconButton>
 
+              {/* Avatar (initiale) + username complet */}
               <Box
                 sx={{
                   display: "flex",
                   alignItems: "center",
                   gap: 1,
                   ml: 1,
-                  cursor: "default",
-                  pointerEvents: "none",
-                  userSelect: "none",
                 }}
               >
-                <AccountCircleIcon />
-                <Typography
-                  variant="body1"
-                  sx={{
-                    color: "inherit",
-                    fontWeight: 500,
-                  }}
-                >
+                <Avatar sx={{ width: 32, height: 32, fontSize: 16 }}>{usernameInitial}</Avatar>
+                <Typography variant="body1" sx={{ color: "inherit", fontWeight: 500 }}>
                   {username}
                 </Typography>
               </Box>
